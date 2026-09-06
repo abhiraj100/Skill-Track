@@ -24,14 +24,21 @@ server.on("error", (error) => {
   process.exit(1);
 });
 
+const retryDelayMs = 10_000;
+
+const connectToDatabase = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection unavailable:", error.message);
+    console.error(`The API is running in degraded mode; retrying MongoDB in ${retryDelayMs / 1000} seconds.`);
+    setTimeout(connectToDatabase, retryDelayMs);
+  }
+};
+
 if (!process.env.MONGO_URI) {
   console.error("MongoDB is not configured: set MONGO_URI in server/.env");
 } else {
-  mongoose
-    .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("MongoDB connected"))
-    .catch((error) => {
-      console.error("MongoDB connection unavailable:", error.message);
-      console.error("The API is running in degraded mode; database routes will return 503.");
-    });
+  connectToDatabase();
 }

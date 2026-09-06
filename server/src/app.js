@@ -16,9 +16,20 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const configuredOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const isLocalDevelopmentOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin(origin, callback) {
+    // Requests without an Origin header (curl, health checks) are safe to allow.
+    if (!origin || configuredOrigins.includes(origin) || isLocalDevelopmentOrigin(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  },
   credentials: true
 }));
 app.use(express.json({ limit: "2mb" }));
