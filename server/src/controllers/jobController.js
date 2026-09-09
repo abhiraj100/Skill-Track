@@ -9,15 +9,19 @@ export const listJobs = async (req, res, next) => {
 
 export const createJob = async (req, res, next) => {
   try {
-    const job = await JobApplication.create({ ...req.body, user: req.user._id });
+    const { company, position, status, jobUrl, notes, appliedDate, interviewDate } = req.body;
+    if (!company?.trim() || !position?.trim()) { res.status(400); throw new Error("Company and position are required"); }
+    const job = await JobApplication.create({ company: company.trim(), position: position.trim(), status, jobUrl, notes, appliedDate, interviewDate, user: req.user._id });
     res.status(201).json({ success: true, job });
   } catch (e) { next(e); }
 };
 
 export const updateJob = async (req, res, next) => {
   try {
+    const allowed = ["company", "position", "status", "jobUrl", "notes", "appliedDate", "interviewDate"];
+    const updates = Object.fromEntries(Object.entries(req.body).filter(([key]) => allowed.includes(key)));
     const job = await JobApplication.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id }, req.body, { new: true }
+      { _id: req.params.id, user: req.user._id }, updates, { new: true, runValidators: true }
     );
     if (!job) { res.status(404); throw new Error("Application not found"); }
     res.json({ success: true, job });

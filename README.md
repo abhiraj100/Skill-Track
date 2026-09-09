@@ -18,9 +18,11 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - Course enrollment
 - Lesson progress tracking
 - Quizzes and scoring
+- In-course quizzes with recent attempt history
+- Toggleable lesson completion and accurate course progress
 - Skill-gap analysis
 - Resume analysis UI
-- Job application tracker
+- Job application tracker with search, status filters, dates, job links and interview reminders
 - Admin dashboard
 - Recharts analytics
 - Toast notifications
@@ -149,6 +151,13 @@ Open:
 ```text
 http://localhost:5173
 ```
+
+## What you can do after signing in
+
+- Enroll in a course, complete or reopen lessons, and see progress update immediately.
+- Take the course knowledge check; the latest score and up to five recent attempts are retained.
+- Use the AI Career workspace with no AI key configured—the server returns deterministic local feedback—then optionally connect an AI provider later.
+- Add applications with applied/interview dates, notes and a job-post link; search and filter the pipeline or change each application’s status in place.
 
 ## Production builds
 
