@@ -17,7 +17,7 @@ button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 
 @layer components {
-  .page-shell { @apply min-h-screen bg-slate-50 text-slate-900; }
+  .page-shell { @apply min-h-screen bg-slate-50 text-slate-900; background-image: radial-gradient(circle at 5% 0%, rgb(238 242 255 / .75), transparent 25rem), radial-gradient(circle at 95% 20%, rgb(236 253 245 / .55), transparent 28rem); }
   .card { @apply rounded-2xl border border-slate-200 bg-white shadow-soft; }
   .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-50; }
   .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50; }

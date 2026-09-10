@@ -7,12 +7,13 @@ import Course from "../models/Course.js";
 import Quiz from "../models/Quiz.js";
 import JobApplication from "../models/JobApplication.js";
 import Skill from "../models/Skill.js";
+import StudySession from "../models/StudySession.js";
 
 await mongoose.connect(process.env.MONGO_URI);
 
 await Promise.all([
   User.deleteMany({}), Course.deleteMany({}), Quiz.deleteMany({}),
-  JobApplication.deleteMany({}), Skill.deleteMany({})
+  JobApplication.deleteMany({}), Skill.deleteMany({}), StudySession.deleteMany({})
 ]);
 
 const passwordUser = await bcrypt.hash("User@123", 12);

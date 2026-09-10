@@ -20,10 +20,12 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - Quizzes and scoring
 - In-course quizzes with recent attempt history
 - Toggleable lesson completion and accurate course progress
+- Daily learning goals, quick study-time logging, seven-day activity chart and streaks
 - Skill-gap analysis
 - Resume analysis UI
 - Job application tracker with search, status filters, dates, job links and interview reminders
 - Admin dashboard
+- Admin completion metrics and application-pipeline chart
 - Recharts analytics
 - Toast notifications
 - Dark/light UI-ready design system

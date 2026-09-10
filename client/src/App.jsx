@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./store/auth";
 import AppLayout from "./layouts/AppLayout";
@@ -8,8 +9,9 @@ import CourseDetails from "./pages/CourseDetails";
 import Career from "./pages/Career";
 import Jobs from "./pages/Jobs";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+
+const Admin = lazy(() => import("./pages/Admin"));
 
 function Protected({ children, admin=false }) {
   const { user, loading } = useAuth();
@@ -31,7 +33,7 @@ function Router() {
     <Route path="/career" element={<Career/>}/>
     <Route path="/jobs" element={<Jobs/>}/>
     <Route path="/profile" element={<Profile/>}/>
-    <Route path="/admin" element={<Protected admin><Admin/></Protected>}/>
+    <Route path="/admin" element={<Protected admin><Suspense fallback={<div className="py-20 text-center text-slate-500">Loading analytics...</div>}><Admin/></Suspense></Protected>}/>
   </Route>
   <Route path="*" element={<NotFound/>}/>
  </Routes>
