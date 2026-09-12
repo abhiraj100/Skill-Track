@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { BookOpen, BriefcaseBusiness, LayoutDashboard, Menu, Sparkles, UserRound, X, LogOut, ShieldCheck } from "lucide-react";
+import { BookOpen, BrainCircuit, BriefcaseBusiness, LayoutDashboard, Menu, Sparkles, UserRound, X, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../store/auth";
 
 const links = [
   ["/dashboard", "Dashboard", LayoutDashboard],
   ["/courses", "Courses", BookOpen],
   ["/career", "AI Career", Sparkles],
+  ["/mind-gym", "Mind Gym", BrainCircuit],
   ["/jobs", "Job Tracker", BriefcaseBusiness],
   ["/profile", "Profile", UserRound]
 ];

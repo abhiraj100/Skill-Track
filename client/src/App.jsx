@@ -9,6 +9,7 @@ import CourseDetails from "./pages/CourseDetails";
 import Career from "./pages/Career";
 import Jobs from "./pages/Jobs";
 import Profile from "./pages/Profile";
+import MindGym from "./pages/MindGym";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -32,6 +33,7 @@ function Router() {
     <Route path="/courses/:id" element={<CourseDetails/>}/>
     <Route path="/career" element={<Career/>}/>
     <Route path="/jobs" element={<Jobs/>}/>
+    <Route path="/mind-gym" element={<MindGym/>}/>
     <Route path="/profile" element={<Profile/>}/>
     <Route path="/admin" element={<Protected admin><Suspense fallback={<div className="py-20 text-center text-slate-500">Loading analytics...</div>}><Admin/></Suspense></Protected>}/>
   </Route>
