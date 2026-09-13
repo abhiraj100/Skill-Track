@@ -12,6 +12,7 @@ import jobRoutes from "./routes/jobRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import mindGameRoutes from "./routes/mindGameRoutes.js";
+import studyNoteRoutes from "./routes/studyNoteRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -41,7 +42,7 @@ const apiIndex = (_req, res) => {
     success: true,
     message: "SkillTrack API is running",
     health: "/api/health",
-    endpoints: ["/api/auth", "/api/courses", "/api/progress", "/api/quizzes", "/api/jobs", "/api/ai", "/api/admin", "/api/mind-games"]
+    endpoints: ["/api/auth", "/api/courses", "/api/progress", "/api/quizzes", "/api/jobs", "/api/ai", "/api/admin", "/api/mind-games", "/api/notes"]
   });
 };
 
@@ -75,6 +76,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mind-games", mindGameRoutes);
+app.use("/api/notes", studyNoteRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

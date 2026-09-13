@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { BookOpen, BrainCircuit, BriefcaseBusiness, LayoutDashboard, Menu, Sparkles, UserRound, X, LogOut, ShieldCheck } from "lucide-react";
+import { BookOpen, BookMarked, BrainCircuit, BriefcaseBusiness, LayoutDashboard, Menu, Sparkles, UserRound, X, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "../store/auth";
 
 const links = [
@@ -8,6 +8,7 @@ const links = [
   ["/courses", "Courses", BookOpen],
   ["/career", "AI Career", Sparkles],
   ["/mind-gym", "Mind Gym", BrainCircuit],
+  ["/notes", "Notes", BookMarked],
   ["/jobs", "Job Tracker", BriefcaseBusiness],
   ["/profile", "Profile", UserRound]
 ];

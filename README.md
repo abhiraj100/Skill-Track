@@ -22,6 +22,7 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - Toggleable lesson completion and accurate course progress
 - Daily learning goals, quick study-time logging, seven-day activity chart and streaks
 - Mind Gym: timed quick-calculation sprints with difficulty levels, personal records and leaderboard
+- Study Notes workspace with course links, tags, pinning, search, editing and deletion
 - Skill-gap analysis
 - Resume analysis UI
 - Job application tracker with search, status filters, dates, job links and interview reminders
