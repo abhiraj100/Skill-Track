@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+  // In development, Vite proxies this same-origin path to the API. This avoids
+  // browser CORS preflights entirely while keeping VITE_API_URL available for deployments.
+  baseURL: import.meta.env.VITE_API_URL || "/api"
 });
 
 api.interceptors.request.use(config => {

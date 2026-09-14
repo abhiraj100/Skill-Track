@@ -13,6 +13,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import mindGameRoutes from "./routes/mindGameRoutes.js";
 import studyNoteRoutes from "./routes/studyNoteRoutes.js";
+import achievementRoutes from "./routes/achievementRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
@@ -23,17 +24,22 @@ const configuredOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 const isLocalDevelopmentOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-
-app.use(cors({
+const corsOptions = {
   origin(origin, callback) {
     // Requests without an Origin header (curl, health checks) are safe to allow.
     if (!origin || configuredOrigins.includes(origin) || isLocalDevelopmentOrigin(origin)) {
-      return callback(null, true);
+      return callback(null, origin || true);
     }
     return callback(new Error(`Origin not allowed by CORS: ${origin}`));
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "2mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -42,7 +48,7 @@ const apiIndex = (_req, res) => {
     success: true,
     message: "SkillTrack API is running",
     health: "/api/health",
-    endpoints: ["/api/auth", "/api/courses", "/api/progress", "/api/quizzes", "/api/jobs", "/api/ai", "/api/admin", "/api/mind-games", "/api/notes"]
+    endpoints: ["/api/auth", "/api/courses", "/api/progress", "/api/quizzes", "/api/jobs", "/api/ai", "/api/admin", "/api/mind-games", "/api/notes", "/api/achievements"]
   });
 };
 
@@ -77,6 +83,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mind-games", mindGameRoutes);
 app.use("/api/notes", studyNoteRoutes);
+app.use("/api/achievements", achievementRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

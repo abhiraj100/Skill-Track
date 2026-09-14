@@ -23,6 +23,7 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - Daily learning goals, quick study-time logging, seven-day activity chart and streaks
 - Mind Gym: timed quick-calculation sprints with difficulty levels, personal records and leaderboard
 - Study Notes workspace with course links, tags, pinning, search, editing and deletion
+- Achievement badges that reward learning, quizzes, notes, study time, applications and Mind Gym activity
 - Skill-gap analysis
 - Resume analysis UI
 - Job application tracker with search, status filters, dates, job links and interview reminders
@@ -84,7 +85,8 @@ The AI endpoint is optional. Without it, SkillTrack returns useful demo/mock ana
 Copy `client/.env.example` to `client/.env`.
 
 ```env
-VITE_API_URL=http://localhost:5000/api
+# Leave blank locally: Vite proxies /api to the backend on port 5000.
+VITE_API_URL=
 ```
 
 ## 3. Start MongoDB
