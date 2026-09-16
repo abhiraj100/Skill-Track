@@ -13,7 +13,13 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard
+- Responsive dashboard with training arena launcher
+- AI Mock Interview Simulator with speech-to-text, real-time AI scoring, and ideal model answers (`/interview`)
+- Interactive Code Lab with in-browser algorithmic challenges, execution sandbox, test runner, and hints (`/codelab`)
+- Visual Interactive Career Roadmaps with milestone skill trees and progress tracking (`/roadmaps`)
+- Pomodoro Deep Focus Station with Web Audio ambient soundscapes (rain, alpha waves) and streak auto-sync (`/focus`)
+- Verifiable Course Completion Certificates with cryptographic verification IDs, printable credentials, and public lookup (`/certificates`)
+- AI Cover Letter & Recruiter InMail outreach generator (`/career`)
 - Course browsing, search and filtering
 - Course enrollment
 - Lesson progress tracking
@@ -34,7 +40,7 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - Dark/light UI-ready design system
 - API error handling
 - MongoDB seed data
-- Optional AI integration with a safe mock fallback
+- Optional AI integration with safe simulated mock fallbacks
 
 ## Requirements
 
