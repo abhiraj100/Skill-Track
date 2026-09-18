@@ -4,14 +4,19 @@ import {
   Award,
   BookOpen,
   BookMarked,
+  Boxes,
+  Brain,
   BrainCircuit,
   BriefcaseBusiness,
   Code2,
   Flame,
+  FolderGit2,
+  Globe,
   Headphones,
   Layers,
   MapPin,
   Medal,
+  MessagesSquare,
   ShieldCheck,
   Sparkles,
   Target,
@@ -79,17 +84,20 @@ export default function Dashboard() {
               Welcome back, {user?.name?.split(" ")[0]} 👋
             </h1>
             <p className="mt-3 max-w-2xl leading-7 text-white/80">
-              Your active career track is <strong className="text-white">{user?.careerGoal}</strong>. Build real skills with interactive labs, AI interview simulation, and verified credentials.
+              Your active career track is <strong className="text-white">{user?.careerGoal}</strong>. Build real skills with interactive labs, system design simulations, community Q&A, and verified credentials.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-slate-100" to="/interview">
-                Practice AI Interview
+              <Link className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-slate-100 shadow-sm" to="/system-design">
+                System Design Arena
               </Link>
-              <Link className="rounded-xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/20" to="/codelab">
-                Open Code Lab
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/interview">
+                AI Mock Interview
               </Link>
-              <Link className="rounded-xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/20" to="/roadmaps">
-                Skill Roadmaps
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/community">
+                Community Forum
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/portfolio">
+                My Portfolio
               </Link>
             </div>
           </div>
@@ -114,10 +122,29 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="section-title">Interactive Training Arena</h2>
-            <p className="mt-1 text-sm text-slate-500">Accelerate your readiness with hands-on simulations.</p>
+            <p className="mt-1 text-sm text-slate-500">Accelerate your readiness with hands-on labs and simulations.</p>
           </div>
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link
+            to="/system-design"
+            className="card group flex flex-col justify-between overflow-hidden border-violet-100 p-5 transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600 transition group-hover:bg-violet-600 group-hover:text-white">
+                <Boxes size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">System Design Arena</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Interactive architecture canvas, real case studies (TinyURL, Netflix), and QPS capacity calculator.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-violet-600">
+              Open Studio <ArrowRight size={14} />
+            </div>
+          </Link>
+
           <Link
             to="/interview"
             className="card group flex flex-col justify-between overflow-hidden border-indigo-100 p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg"
@@ -128,11 +155,29 @@ export default function Dashboard() {
               </div>
               <h3 className="mt-4 font-bold text-slate-900">AI Mock Interview</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Simulate role-specific interviews with instant multi-criteria AI scoring and model answers.
+                Simulate role-specific interviews with instant speech-to-text, multi-criteria AI scoring, and model answers.
               </p>
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-indigo-600">
               Launch Arena <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/community"
+            className="card group flex flex-col justify-between overflow-hidden border-teal-100 p-5 transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 transition group-hover:bg-teal-600 group-hover:text-white">
+                <MessagesSquare size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Community Discussions</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Peer Q&A channels, upvoting, accepted solutions, and project review showcase.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-teal-600">
+              Join Forum <ArrowRight size={14} />
             </div>
           </Link>
 
@@ -144,7 +189,7 @@ export default function Dashboard() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition group-hover:bg-sky-600 group-hover:text-white">
                 <Code2 size={20} />
               </div>
-              <h3 className="mt-4 font-bold text-slate-900">Interactive Code Lab</h3>
+              <h3 className="mt-4 font-bold text-slate-900">Code Lab & Algorithms</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">
                 In-browser algorithm playground with live execution, custom test runner, and hints.
               </p>
@@ -155,11 +200,47 @@ export default function Dashboard() {
           </Link>
 
           <Link
-            to="/roadmaps"
+            to="/flashcards"
+            className="card group flex flex-col justify-between overflow-hidden border-rose-100 p-5 transition hover:-translate-y-1 hover:border-rose-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white">
+                <Brain size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Smart Flashcards</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Spaced repetition revision with 3D flip animations for JS quirks, React 18, and Big-O.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-rose-600">
+              Review Decks <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/projects"
             className="card group flex flex-col justify-between overflow-hidden border-blue-100 p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
           >
             <div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+                <FolderGit2 size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Capstone Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Guided real-world portfolio projects: collaborative editor, task queue, and Stripe SaaS.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-blue-600">
+              View Capstones <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/roadmaps"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
                 <MapPin size={20} />
               </div>
               <h3 className="mt-4 font-bold text-slate-900">Visual Skill Trees</h3>
@@ -167,17 +248,17 @@ export default function Dashboard() {
                 Interactive tier-by-tier roadmaps for MERN, React Architect, Cloud Backend, and DevOps.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-blue-600">
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600">
               Explore Roadmaps <ArrowRight size={14} />
             </div>
           </Link>
 
           <Link
             to="/focus"
-            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg"
+            className="card group flex flex-col justify-between overflow-hidden border-slate-200 p-5 transition hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
           >
             <div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-slate-900 group-hover:text-white">
                 <Headphones size={20} />
               </div>
               <h3 className="mt-4 font-bold text-slate-900">Deep Focus & Audio</h3>
@@ -185,8 +266,8 @@ export default function Dashboard() {
                 Pomodoro intervals with native synthesized ambient rain, alpha waves, and streak auto-sync.
               </p>
             </div>
-            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600">
-              Start Focus Block <ArrowRight size={14} />
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-slate-700">
+              Start Focus <ArrowRight size={14} />
             </div>
           </Link>
         </div>
@@ -255,6 +336,25 @@ export default function Dashboard() {
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <Link
+              to="/portfolio"
+              className="block rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-teal-700">
+                    <Globe size={18} />
+                    <span className="text-xs font-bold tracking-wide">PORTFOLIO</span>
+                  </div>
+                  <h3 className="mt-2 text-lg font-extrabold text-slate-900">Developer Profile</h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">
+                    Share your verified certificates, projects, and export your resume.
+                  </p>
+                </div>
+                <ArrowRight className="mt-1 text-teal-700" />
+              </div>
+            </Link>
+
+            <Link
               to="/certificates"
               className="block rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
@@ -287,23 +387,6 @@ export default function Dashboard() {
                   <p className="mt-1 text-xs leading-5 text-white/80">Boost focus with a mental calculation sprint.</p>
                 </div>
                 <ArrowRight className="mt-1" />
-              </div>
-            </Link>
-
-            <Link
-              to="/notes"
-              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-brand-600">
-                    <BookMarked size={18} />
-                    <span className="text-xs font-bold tracking-wide">STUDY NOTES</span>
-                  </div>
-                  <h3 className="mt-2 text-lg font-extrabold text-slate-900">Capture key ideas</h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-600">Organize takeaways, tags, and revision bookmarks.</p>
-                </div>
-                <ArrowRight className="mt-1 text-brand-600" />
               </div>
             </Link>
           </div>

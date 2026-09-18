@@ -17,6 +17,11 @@ import CodeLab from "./pages/CodeLab";
 import Roadmaps from "./pages/Roadmaps";
 import FocusStation from "./pages/FocusStation";
 import Certificates from "./pages/Certificates";
+import SystemDesign from "./pages/SystemDesign";
+import Community from "./pages/Community";
+import Flashcards from "./pages/Flashcards";
+import ProjectsStudio from "./pages/ProjectsStudio";
+import PortfolioView from "./pages/PortfolioView";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -51,12 +56,17 @@ function Router() {
         <Route path="/courses" element={<Courses />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/roadmaps" element={<Roadmaps />} />
+        <Route path="/system-design" element={<SystemDesign />} />
+        <Route path="/flashcards" element={<Flashcards />} />
         <Route path="/interview" element={<MockInterview />} />
         <Route path="/codelab" element={<CodeLab />} />
+        <Route path="/projects" element={<ProjectsStudio />} />
         <Route path="/focus" element={<FocusStation />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/career" element={<Career />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/certificates" element={<Certificates />} />
+        <Route path="/portfolio" element={<PortfolioView />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />
