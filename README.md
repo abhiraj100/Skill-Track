@@ -13,7 +13,13 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with training arena launcher
+- Responsive dashboard with 8-module training arena launcher
+- System Design Arena with interactive architecture canvas, case studies (TinyURL, Netflix, WhatsApp, Rate Limiter), and QPS capacity calculator (`/system-design`)
+- Community Discussions & Peer Q&A Forum with voting, categories, accepted solutions, and threaded replies (`/community`)
+- Smart Flashcards & Spaced Repetition Decks with 3D flip card animations and custom deck builder (`/flashcards`)
+- Guided Capstone Projects Studio with real-world architecture specs, milestone checklists, and submission portal (`/projects`)
+- Live Developer Portfolio & Public Profile with verified credentials, skills, and printable PDF resume export (`/portfolio`)
+- Dark / Light Mode Theme Engine with persisted user preference and high-contrast styling
 - AI Mock Interview Simulator with speech-to-text, real-time AI scoring, and ideal model answers (`/interview`)
 - Interactive Code Lab with in-browser algorithmic challenges, execution sandbox, test runner, and hints (`/codelab`)
 - Visual Interactive Career Roadmaps with milestone skill trees and progress tracking (`/roadmaps`)
