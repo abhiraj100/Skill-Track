@@ -14,7 +14,10 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 - JWT authentication
 - User/Admin roles
 - Responsive dashboard with 8-module training arena launcher
-- System Design Arena with interactive architecture canvas, case studies (TinyURL, Netflix, WhatsApp, Rate Limiter), and QPS capacity calculator (`/system-design`)
+- System Design Arena with Live Traffic Simulator, 10x Black Friday Spike trigger, interactive architecture canvas, case studies (TinyURL, Netflix, WhatsApp, Rate Limiter), and QPS capacity calculator (`/system-design`)
+- SQL & MongoDB Query Studio with in-browser query execution, visual data tables, and query execution plan analyzer (`/query-lab`)
+- ATS Resume Builder & PDF Studio with 1-click SkillTrack verified credentials auto-import, ATS score checker, and printable export (`/resume-builder`)
+- Real-time Notification Center with unread badge counter and activity feed (`AppLayout`)
 - Community Discussions & Peer Q&A Forum with voting, categories, accepted solutions, and threaded replies (`/community`)
 - Smart Flashcards & Spaced Repetition Decks with 3D flip card animations and custom deck builder (`/flashcards`)
 - Guided Capstone Projects Studio with real-world architecture specs, milestone checklists, and submission portal (`/projects`)
