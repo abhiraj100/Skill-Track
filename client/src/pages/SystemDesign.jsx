@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   Boxes,
   Calculator,
   CheckCircle2,
   ChevronRight,
   Database,
+  Flame,
   Globe,
   HardDrive,
+  HelpCircle,
   Layers,
   Network,
   Radio,
+  RotateCcw,
   Server,
   ShieldAlert,
   Sparkles,
+  Trophy,
+  XCircle,
   Zap
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { ProgressBar } from "../components/ui";
 
 const CASE_STUDIES = [
   {
@@ -124,18 +132,112 @@ const CASE_STUDIES = [
   }
 ];
 
+const QUIZ_QUESTIONS = [
+  {
+    question: "When scaling a database cluster to handle 100,000 read QPS and 5,000 write QPS, what is the most cost-effective first architectural step?",
+    options: [
+      "Shard the database across 10 physical machines",
+      "Introduce a Redis Cache-Aside layer with read replicas",
+      "Switch immediately from PostgreSQL to Cassandra",
+      "Increase CPU and RAM on the single primary database instance"
+    ],
+    answer: 1,
+    explanation: "With a 20:1 read-to-write ratio, caching 80% of hot reads in Redis and offloading remaining reads to read replicas shields the primary DB at a fraction of sharding complexity."
+  },
+  {
+    question: "Why are Lua scripts preferred over standard multi-command transactions (MULTI/EXEC) when implementing a Rate Limiter in Redis?",
+    options: [
+      "Lua scripts execute asynchronously without blocking",
+      "Lua scripts execute atomically on the Redis single thread, eliminating race conditions without distributed locks",
+      "Lua scripts compress the data stored in memory",
+      "Lua scripts do not require Redis memory keys"
+    ],
+    answer: 1,
+    explanation: "Lua scripts run atomically within Redis's single execution thread, guaranteeing that increment and TTL checks occur without interference from concurrent requests."
+  },
+  {
+    question: "In a real-time messaging app like WhatsApp, why is Cassandra or ScyllaDB preferred over a relational SQL database for message storage?",
+    options: [
+      "Cassandra provides ACID multi-table transactions",
+      "Cassandra uses an append-only LSM tree architecture optimized for sequential high-write throughput and automatic horizontal partitioning",
+      "Cassandra has built-in WebSocket servers",
+      "Cassandra eliminates the need for any caching"
+    ],
+    answer: 1,
+    explanation: "Log-Structured Merge (LSM) trees convert random writes into sequential disk writes, allowing Cassandra to effortlessly ingest billions of messages daily without B-tree page lock contention."
+  },
+  {
+    question: "What is the primary danger of using consistent hashing WITHOUT virtual nodes (vnodes)?",
+    options: [
+      "Keys cannot be partitioned",
+      "Non-uniform data distribution where one physical node receives a disproportionate traffic load (hotspotting)",
+      "Hash collisions between strings",
+      "Inability to use replica nodes"
+    ],
+    answer: 1,
+    explanation: "Without virtual nodes, a few unlucky hash positions can lead to massive skew where a single physical machine receives 60%+ of all requests. Virtual nodes distribute thousands of points per machine across the ring."
+  }
+];
+
 export default function SystemDesign() {
-  const [activeTab, setActiveTab] = useState("cases"); // 'cases' | 'canvas' | 'calculator' | 'matrix'
+  const [activeTab, setActiveTab] = useState("simulator"); // 'simulator' | 'cases' | 'canvas' | 'calculator' | 'quiz'
   const [selectedCase, setSelectedCase] = useState(CASE_STUDIES[0]);
   const [selectedComponent, setSelectedComponent] = useState(null);
 
-  // Estimator State
-  const [dau, setDau] = useState(10); // in millions
-  const [requestsPerUser, setRequestsPerUser] = useState(25);
-  const [readRatio, setReadRatio] = useState(90); // 90% read, 10% write
-  const [payloadKb, setPayloadKb] = useState(2); // 2 KB
+  // Live Simulator State
+  const [qps, setQps] = useState(25000); // 25k QPS
+  const [hasRedis, setHasRedis] = useState(true);
+  const [appPods, setAppPods] = useState(4);
+  const [hasReplicas, setHasReplicas] = useState(true);
+  const [hasKafka, setHasKafka] = useState(true);
+  const [isSpike, setIsSpike] = useState(false);
 
-  // Calculations
+  // Estimator State
+  const [dau, setDau] = useState(10);
+  const [requestsPerUser, setRequestsPerUser] = useState(25);
+  const [readRatio, setReadRatio] = useState(90);
+  const [payloadKb, setPayloadKb] = useState(2);
+
+  // Quiz State
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [quizScore, setQuizScore] = useState(0);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [quizFinished, setQuizFinished] = useState(false);
+
+  // Live Simulator Telemetry Calculations
+  const effectiveQps = isSpike ? qps * 10 : qps;
+  const podCapacity = 8000; // each pod can handle 8k QPS
+  const totalPodCapacity = appPods * podCapacity;
+  const appCpu = Math.min(100, Math.round((effectiveQps / totalPodCapacity) * 100));
+
+  // If Redis is disabled, 100% of read traffic hits DB!
+  const dbDirectTraffic = hasRedis ? effectiveQps * 0.15 : effectiveQps;
+  const dbCapacity = hasReplicas ? 40000 : 15000;
+  const dbCpu = Math.min(100, Math.round((dbDirectTraffic / dbCapacity) * 100));
+
+  const isDbOverloaded = dbCpu >= 95;
+  const isAppOverloaded = appCpu >= 95;
+
+  let latencyMs = 8;
+  if (!hasRedis) latencyMs += 45;
+  if (dbCpu > 70) latencyMs += Math.round((dbCpu - 70) * 1.5);
+  if (appCpu > 80) latencyMs += Math.round((appCpu - 80) * 2);
+  if (isDbOverloaded) latencyMs = 1250;
+
+  const errorRate = isDbOverloaded ? 28.5 : isAppOverloaded ? 14.2 : 0.01;
+
+  let healthStatus = "Optimal";
+  let healthColor = "text-emerald-500";
+  if (isDbOverloaded || isAppOverloaded) {
+    healthStatus = "CRITICAL OUTAGE (504 Gateway Timeout)";
+    healthColor = "text-rose-600";
+  } else if (latencyMs > 50) {
+    healthStatus = "Elevated Latency";
+    healthColor = "text-amber-500";
+  }
+
+  // Estimator Calculations
   const totalDailyRequests = dau * 1_000_000 * requestsPerUser;
   const avgQps = Math.round(totalDailyRequests / 86400);
   const peakQps = Math.round(avgQps * 2.5);
@@ -144,7 +246,37 @@ export default function SystemDesign() {
   const bandwidthMBs = ((avgQps * payloadKb) / 1024).toFixed(2);
   const dailyStorageGB = ((totalDailyRequests * payloadKb) / (1024 * 1024)).toFixed(2);
   const fiveYearStorageTB = ((dailyStorageGB * 365 * 5) / 1024).toFixed(1);
-  const cacheRamGB = Math.round((dailyStorageGB * 0.2)); // 80/20 rule
+  const cacheRamGB = Math.round(dailyStorageGB * 0.2);
+
+  const handleAnswer = (optionIdx) => {
+    if (selectedAnswer !== null) return;
+    setSelectedAnswer(optionIdx);
+    setShowExplanation(true);
+    if (optionIdx === QUIZ_QUESTIONS[quizIndex].answer) {
+      setQuizScore((s) => s + 1);
+      toast.success("Correct architecture choice!");
+    } else {
+      toast.error("Suboptimal design pattern.");
+    }
+  };
+
+  const nextQuizQuestion = () => {
+    if (quizIndex + 1 < QUIZ_QUESTIONS.length) {
+      setQuizIndex((i) => i + 1);
+      setSelectedAnswer(null);
+      setShowExplanation(false);
+    } else {
+      setQuizFinished(true);
+    }
+  };
+
+  const resetQuiz = () => {
+    setQuizIndex(0);
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setQuizScore(0);
+    setQuizFinished(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -156,17 +288,19 @@ export default function SystemDesign() {
               <Boxes size={20} />
               <span className="text-xs font-bold uppercase tracking-wider">Architecture Studio</span>
             </div>
-            <h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">System Design & Architecture Arena</h1>
+            <h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">System Design & Live Traffic Arena</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-              Master distributed systems design for Senior & Staff engineering interviews. Explore real-world architectures, component trade-offs, and run capacity estimators.
+              Master distributed systems architecture for Senior & Staff engineering interviews. Simulate real-time traffic spikes, stress-test bottleneck resilience, and solve production case studies.
             </p>
           </div>
+
           <div className="flex flex-wrap gap-2">
             {[
+              { id: "simulator", label: "Live Traffic Simulator", icon: Zap },
               { id: "cases", label: "Case Studies", icon: Layers },
-              { id: "canvas", label: "Interactive Canvas", icon: Network },
-              { id: "calculator", label: "Capacity Estimator", icon: Calculator },
-              { id: "matrix", label: "Trade-offs Matrix", icon: Activity }
+              { id: "canvas", label: "Architecture Canvas", icon: Network },
+              { id: "calculator", label: "Scale Estimator", icon: Calculator },
+              { id: "quiz", label: "System Design Quiz", icon: HelpCircle }
             ].map((t) => {
               const Icon = t.icon;
               return (
@@ -187,6 +321,236 @@ export default function SystemDesign() {
           </div>
         </div>
       </section>
+
+      {/* LIVE TRAFFIC SIMULATOR TAB */}
+      {activeTab === "simulator" && (
+        <div className="space-y-6">
+          {/* Telemetry Dashboard Banner */}
+          <div className="card p-6 sm:p-7 border-brand-200/80 shadow-lg">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">System Telemetry & Health</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`h-3 w-3 rounded-full animate-ping ${isDbOverloaded ? "bg-rose-500" : "bg-emerald-500"}`} />
+                  <h2 className={`text-xl font-extrabold ${healthColor}`}>{healthStatus}</h2>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsSpike(!isSpike)}
+                  className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition shadow-md ${
+                    isSpike
+                      ? "bg-rose-600 text-white animate-pulse"
+                      : "bg-slate-900 text-white hover:bg-slate-800"
+                  }`}
+                >
+                  <Flame size={15} />
+                  {isSpike ? "Release 10x Spike (Active!)" : "Simulate 10x Spike (Black Friday)"}
+                </button>
+                <button
+                  onClick={() => {
+                    setQps(25000);
+                    setHasRedis(true);
+                    setAppPods(4);
+                    setHasReplicas(true);
+                    setHasKafka(true);
+                    setIsSpike(false);
+                  }}
+                  className="rounded-xl border border-slate-200 p-2.5 text-slate-500 hover:bg-slate-50"
+                  title="Reset Simulator"
+                >
+                  <RotateCcw size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Metrics Row */}
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Incoming Traffic</p>
+                <p className="mt-1 text-2xl font-extrabold text-slate-900">
+                  {effectiveQps.toLocaleString()} <span className="text-xs font-normal text-slate-500">QPS</span>
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">Requests per second</p>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${latencyMs > 100 ? "border-rose-200 bg-rose-50/50" : "border-slate-200 bg-slate-50"}`}>
+                <p className="text-xs text-slate-500">P99 Latency</p>
+                <p className={`mt-1 text-2xl font-extrabold ${latencyMs > 100 ? "text-rose-600" : "text-slate-900"}`}>
+                  {latencyMs} <span className="text-xs font-normal text-slate-500">ms</span>
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">{latencyMs < 20 ? "Ultra-low edge speed" : "SLA Breached!"}</p>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${appCpu > 85 ? "border-amber-200 bg-amber-50" : "border-slate-200 bg-slate-50"}`}>
+                <p className="text-xs text-slate-500">App Fleet CPU ({appPods} Pods)</p>
+                <p className={`mt-1 text-2xl font-extrabold ${appCpu > 85 ? "text-amber-600" : "text-slate-900"}`}>
+                  {appCpu}%
+                </p>
+                <div className="mt-2"><ProgressBar value={appCpu} /></div>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${dbCpu > 85 ? "border-rose-300 bg-rose-50" : "border-slate-200 bg-slate-50"}`}>
+                <p className="text-xs text-slate-500">Database Engine Load</p>
+                <p className={`mt-1 text-2xl font-extrabold ${dbCpu > 85 ? "text-rose-600" : "text-slate-900"}`}>
+                  {dbCpu}%
+                </p>
+                <div className="mt-2"><ProgressBar value={dbCpu} /></div>
+              </div>
+            </div>
+
+            {/* Outage Warning Alert */}
+            {isDbOverloaded && (
+              <div className="mt-5 rounded-2xl border border-rose-300 bg-rose-50 p-4 text-rose-800 text-xs flex items-start gap-3 animate-in fade-in">
+                <AlertTriangle size={20} className="shrink-0 text-rose-600 mt-0.5" />
+                <div>
+                  <p className="font-bold text-sm">CRITICAL ARCHITECTURAL BOTTLENECK: Database Connection Exhaustion!</p>
+                  <p className="mt-1 leading-relaxed">
+                    Direct read traffic exceeded primary database IOPS limits. Without Redis cache, incoming queries triggered a connection storm.
+                    <strong> Fix: Enable Redis Caching or add Read Replicas below to restore service.</strong>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Controls & Animated SVG Flow */}
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+            {/* Live Interactive Canvas */}
+            <div className="card p-6 sm:p-7 space-y-6">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Network size={16} className="text-brand-600" />
+                Live Architecture Topology
+              </h3>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-950 p-6 text-white space-y-6 relative overflow-hidden">
+                {/* Visual Flow Stages */}
+                <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+                  <div className="rounded-xl border border-sky-500/40 bg-sky-950/60 p-3 text-center min-w-[110px]">
+                    <Globe size={18} className="mx-auto text-sky-400 mb-1" />
+                    <p className="font-bold text-white">Clients</p>
+                    <p className="text-[10px] text-sky-300">{effectiveQps.toLocaleString()} QPS</p>
+                  </div>
+
+                  <div className="text-slate-600 font-bold">➔</div>
+
+                  <div className="rounded-xl border border-indigo-500/40 bg-indigo-950/60 p-3 text-center min-w-[110px]">
+                    <Network size={18} className="mx-auto text-indigo-400 mb-1" />
+                    <p className="font-bold text-white">Edge CDN / LB</p>
+                    <p className="text-[10px] text-indigo-300">SSL + Cache</p>
+                  </div>
+
+                  <div className="text-slate-600 font-bold">➔</div>
+
+                  <div className={`rounded-xl border p-3 text-center min-w-[110px] transition ${
+                    appCpu > 85 ? "border-rose-500 bg-rose-950/60" : "border-blue-500/40 bg-blue-950/60"
+                  }`}>
+                    <Server size={18} className="mx-auto text-blue-400 mb-1" />
+                    <p className="font-bold text-white">{appPods} App Pods</p>
+                    <p className="text-[10px] text-blue-300">{appCpu}% CPU</p>
+                  </div>
+
+                  <div className="text-slate-600 font-bold">➔</div>
+
+                  <div className={`rounded-xl border p-3 text-center min-w-[110px] transition ${
+                    hasRedis ? "border-emerald-500/50 bg-emerald-950/60" : "border-slate-800 bg-slate-900 opacity-40"
+                  }`}>
+                    <Zap size={18} className="mx-auto text-emerald-400 mb-1" />
+                    <p className="font-bold text-white">Redis Cache</p>
+                    <p className="text-[10px] text-emerald-300">{hasRedis ? "Active (<2ms)" : "DISABLED"}</p>
+                  </div>
+
+                  <div className="text-slate-600 font-bold">➔</div>
+
+                  <div className={`rounded-xl border p-3 text-center min-w-[110px] transition ${
+                    isDbOverloaded ? "border-rose-500 bg-rose-950/80 animate-pulse" : "border-purple-500/40 bg-purple-950/60"
+                  }`}>
+                    <Database size={18} className="mx-auto text-purple-400 mb-1" />
+                    <p className="font-bold text-white">Postgres DB</p>
+                    <p className="text-[10px] text-purple-300">{dbCpu}% Load</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-slate-900/80 p-3 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+                  <span>Packet Flow: Client ➔ Cloudflare Edge ➔ Envoy Gateway ➔ Node.js ➔ Redis / DB</span>
+                  <span className="text-emerald-400 font-bold">Streaming telemetry</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Architecture Controls Panel */}
+            <div className="card p-6 space-y-5">
+              <h3 className="font-bold text-slate-900 text-sm">System Capacity Controls</h3>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span>Base Traffic Load</span>
+                    <span className="font-mono text-brand-600">{qps.toLocaleString()} QPS</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5000"
+                    max="100000"
+                    step="5000"
+                    value={qps}
+                    onChange={(e) => setQps(Number(e.target.value))}
+                    className="w-full mt-2 accent-brand-600 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span>App Cluster Replicas</span>
+                    <span className="font-mono text-brand-600">{appPods} Container Pods</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={appPods}
+                    onChange={(e) => setAppPods(Number(e.target.value))}
+                    className="w-full mt-2 accent-brand-600 cursor-pointer"
+                  />
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer">
+                    <span className="flex items-center gap-1.5"><Zap size={14} className="text-amber-500" /> Redis In-Memory Cache</span>
+                    <input
+                      type="checkbox"
+                      checked={hasRedis}
+                      onChange={(e) => setHasRedis(e.target.checked)}
+                      className="h-4 w-4 rounded accent-brand-600 cursor-pointer"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer">
+                    <span className="flex items-center gap-1.5"><Database size={14} className="text-purple-500" /> DB Read Replicas (x3)</span>
+                    <input
+                      type="checkbox"
+                      checked={hasReplicas}
+                      onChange={(e) => setHasReplicas(e.target.checked)}
+                      className="h-4 w-4 rounded accent-brand-600 cursor-pointer"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between text-xs font-semibold text-slate-700 cursor-pointer">
+                    <span className="flex items-center gap-1.5"><Radio size={14} className="text-teal-500" /> Kafka Async Write Buffer</span>
+                    <input
+                      type="checkbox"
+                      checked={hasKafka}
+                      onChange={(e) => setHasKafka(e.target.checked)}
+                      className="h-4 w-4 rounded accent-brand-600 cursor-pointer"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CASE STUDIES TAB */}
       {activeTab === "cases" && (
@@ -283,7 +647,7 @@ export default function SystemDesign() {
         </div>
       )}
 
-      {/* INTERACTIVE CANVAS TAB */}
+      {/* ARCHITECTURE CANVAS TAB */}
       {activeTab === "canvas" && (
         <div className="space-y-6">
           <div className="card p-6 sm:p-8 space-y-6">
@@ -294,7 +658,6 @@ export default function SystemDesign() {
               </p>
             </div>
 
-            {/* Architecture Node Graph */}
             <div className="flex flex-col items-center gap-4 py-4 overflow-x-auto">
               <div className="flex flex-wrap items-center justify-center gap-4">
                 {[
@@ -358,7 +721,6 @@ export default function SystemDesign() {
               </div>
             </div>
 
-            {/* Component Detail Drawer */}
             {selectedComponent && (
               <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-5 animate-in fade-in space-y-2">
                 <div className="flex items-center justify-between">
@@ -370,15 +732,15 @@ export default function SystemDesign() {
                   </button>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  {selectedComponent === "cache" && "Redis Cluster provides in-memory sub-millisecond data reads with LRU eviction, distributed locking via Redlock, and Pub/Sub. Used to protect the primary DB from being hammered."}
-                  {selectedComponent === "queue" && "Kafka decouples write spikes with append-only partitioned commit logs. Enables event-driven consumers, analytical streaming, and exactly-once processing semantics."}
-                  {selectedComponent === "gateway" && "The API Gateway handles rate limiting, JWT token validation, SSL termination, and circuit breaking before requests ever hit microservices."}
-                  {selectedComponent === "db" && "Primary transactional store with read replicas. Writes hit the master node while reads are load-balanced across replicas using connection pooling (PgBouncer)."}
-                  {selectedComponent === "app" && "Stateless containerized pods running in Kubernetes (EKS). Scales up/down automatically based on CPU and request queue depth."}
-                  {selectedComponent === "cdn" && "Caches static assets, media, and cacheable API responses at over 300 global edge locations, dropping latency to under 20ms."}
-                  {selectedComponent === "client" && "Web browser or native iOS/Android client. Implements client-side caching, optimistic updates, and retry-with-backoff."}
-                  {selectedComponent === "lb" && "Distributes incoming Layer 7 traffic with health check heartbeats and automatic failover."}
-                  {selectedComponent === "storage" && "Provides 99.999999999% (11 9s) durability for media files, backups, and user uploads with lifecycle archiving."}
+                  {selectedComponent === "cache" && "Redis Cluster provides in-memory sub-millisecond data reads with LRU eviction, distributed locking via Redlock, and Pub/Sub."}
+                  {selectedComponent === "queue" && "Kafka decouples write spikes with append-only partitioned commit logs. Enables event-driven consumers and analytical streaming."}
+                  {selectedComponent === "gateway" && "The API Gateway handles rate limiting, JWT token validation, SSL termination, and circuit breaking."}
+                  {selectedComponent === "db" && "Primary transactional store with read replicas. Writes hit the master node while reads are distributed across replicas."}
+                  {selectedComponent === "app" && "Stateless containerized pods running in Kubernetes. Scales horizontally based on CPU and request depth."}
+                  {selectedComponent === "cdn" && "Caches static assets and cacheable API responses at global edge locations."}
+                  {selectedComponent === "client" && "Browser/mobile client implementing optimistic updates and retry-with-backoff."}
+                  {selectedComponent === "lb" && "Distributes incoming Layer 7 traffic with health check heartbeats."}
+                  {selectedComponent === "storage" && "Provides 11 9s durability for media files and backups with lifecycle tiering."}
                 </p>
               </div>
             )}
@@ -386,7 +748,7 @@ export default function SystemDesign() {
         </div>
       )}
 
-      {/* CAPACITY CALCULATOR TAB */}
+      {/* ESTIMATOR TAB */}
       {activeTab === "calculator" && (
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1.8fr]">
           <div className="card p-6 space-y-5">
@@ -494,41 +856,76 @@ export default function SystemDesign() {
         </div>
       )}
 
-      {/* MATRIX TAB */}
-      {activeTab === "matrix" && (
+      {/* QUIZ ARENA TAB */}
+      {activeTab === "quiz" && (
         <div className="card p-6 sm:p-8 space-y-6">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">Distributed Systems Trade-off Decision Matrix</h2>
-            <p className="mt-1 text-xs text-slate-500">
-              Fundamental principles to justify architectural choices in tech interviews.
-            </p>
-          </div>
+          {!quizFinished ? (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <span className="badge bg-purple-50 text-purple-700 font-bold">Question {quizIndex + 1} of {QUIZ_QUESTIONS.length}</span>
+                  <h2 className="mt-2 text-xl font-bold text-slate-900">System Design Architectural Challenge</h2>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-slate-500">Current Score</p>
+                  <p className="font-extrabold text-lg text-brand-600">{quizScore} / {quizIndex + (selectedAnswer !== null ? 1 : 0)}</p>
+                </div>
+              </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
-              <span className="badge bg-purple-50 text-purple-700 font-bold">CAP Theorem</span>
-              <h3 className="font-bold text-slate-900">Consistency vs. Availability</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Network partitions (P) are inevitable in distributed networks. You must choose either CP (bank balances, inventory checkout) or AP (social feed likes, view counters, DNS).
+              <p className="text-base font-semibold text-slate-800 leading-relaxed">
+                {QUIZ_QUESTIONS[quizIndex].question}
               </p>
-            </div>
 
-            <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
-              <span className="badge bg-blue-50 text-blue-700 font-bold">Data Store</span>
-              <h3 className="font-bold text-slate-900">SQL (Relational) vs. NoSQL</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Choose SQL when ACID transactions and complex joins are critical. Choose NoSQL (Key-Value / Document / Columnar) when queries are key-based, schema is dynamic, and horizontal auto-sharding is required.
-              </p>
-            </div>
+              <div className="space-y-3">
+                {QUIZ_QUESTIONS[quizIndex].options.map((opt, optIdx) => {
+                  let btnStyle = "border-slate-200 hover:border-slate-300 hover:bg-slate-50";
+                  if (selectedAnswer !== null) {
+                    if (optIdx === QUIZ_QUESTIONS[quizIndex].answer) {
+                      btnStyle = "border-emerald-400 bg-emerald-50 text-emerald-900 font-semibold";
+                    } else if (optIdx === selectedAnswer) {
+                      btnStyle = "border-rose-400 bg-rose-50 text-rose-900";
+                    }
+                  }
+                  return (
+                    <button
+                      key={optIdx}
+                      disabled={selectedAnswer !== null}
+                      onClick={() => handleAnswer(optIdx)}
+                      className={`w-full rounded-2xl border p-4 text-left text-xs sm:text-sm transition flex items-start gap-3 ${btnStyle}`}
+                    >
+                      <span className="font-bold text-slate-400 shrink-0">{String.fromCharCode(65 + optIdx)}.</span>
+                      <span>{opt}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-            <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
-              <span className="badge bg-emerald-50 text-emerald-700 font-bold">Transport Protocol</span>
-              <h3 className="font-bold text-slate-900">REST vs. gRPC vs. WebSockets</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                REST is standard for public APIs. gRPC (HTTP/2 + Protobuf) is 7-10x faster for inter-microservice communication. WebSockets enable real-time bidirectional push for chats and collaborative tools.
-              </p>
+              {showExplanation && (
+                <div className="rounded-2xl border border-brand-200 bg-brand-50/70 p-4 text-xs text-brand-900 space-y-2 animate-in fade-in">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <Sparkles size={15} /> Principal Architect Breakdown:
+                  </p>
+                  <p className="leading-relaxed">{QUIZ_QUESTIONS[quizIndex].explanation}</p>
+                  <div className="pt-2 flex justify-end">
+                    <button onClick={nextQuizQuestion} className="btn-primary text-xs px-4 py-2">
+                      {quizIndex + 1 < QUIZ_QUESTIONS.length ? "Next Challenge" : "See Final Score"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-8 space-y-4">
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-purple-100 text-purple-600">
+                <Trophy size={32} />
+              </div>
+              <h2 className="text-2xl font-extrabold text-slate-900">Quiz Challenge Completed!</h2>
+              <p className="text-sm text-slate-500">You scored {quizScore} out of {QUIZ_QUESTIONS.length} on advanced distributed systems.</p>
+              <button onClick={resetQuiz} className="btn-primary text-xs px-6 py-2.5">
+                Retake Challenge
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

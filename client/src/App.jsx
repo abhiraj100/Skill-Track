@@ -22,6 +22,8 @@ import Community from "./pages/Community";
 import Flashcards from "./pages/Flashcards";
 import ProjectsStudio from "./pages/ProjectsStudio";
 import PortfolioView from "./pages/PortfolioView";
+import QueryLab from "./pages/QueryLab";
+import ResumeBuilder from "./pages/ResumeBuilder";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -57,6 +59,7 @@ function Router() {
         <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/roadmaps" element={<Roadmaps />} />
         <Route path="/system-design" element={<SystemDesign />} />
+        <Route path="/query-lab" element={<QueryLab />} />
         <Route path="/flashcards" element={<Flashcards />} />
         <Route path="/interview" element={<MockInterview />} />
         <Route path="/codelab" element={<CodeLab />} />
@@ -67,6 +70,7 @@ function Router() {
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/certificates" element={<Certificates />} />
         <Route path="/portfolio" element={<PortfolioView />} />
+        <Route path="/resume-builder" element={<ResumeBuilder />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

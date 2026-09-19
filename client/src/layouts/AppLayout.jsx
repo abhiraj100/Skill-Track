@@ -2,14 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Award,
+  Bell,
   BookMarked,
   BookOpen,
   Boxes,
   Brain,
   BrainCircuit,
   BriefcaseBusiness,
+  Check,
   ChevronDown,
   Code2,
+  Database,
+  FileText,
   FolderGit2,
   Globe,
   Headphones,
@@ -26,6 +30,7 @@ import {
   X,
   Zap
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAuth } from "../store/auth";
 
 export default function AppLayout() {
@@ -33,6 +38,15 @@ export default function AppLayout() {
   const [practiceOpen, setPracticeOpen] = useState(false);
   const [learnOpen, setLearnOpen] = useState(false);
   const [careerOpen, setCareerOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "7-Day Study Streak Active! 🔥", desc: "You're in the top 10% of learners this week. Keep up the momentum!", unread: true, time: "10m ago" },
+    { id: 2, title: "New Challenge in Code Lab", desc: "Two Sum & Debounce challenge ready for practice.", unread: true, time: "2h ago" },
+    { id: 3, title: "Community Upvote", desc: "Alex Rivera upvoted your response in Technical Q&A.", unread: false, time: "1d ago" },
+    { id: 4, title: "Verified Certificate Ready", desc: "Claim your verified credential upon completing 100% course lessons.", unread: false, time: "2d ago" }
+  ]);
+
   const [darkMode, setDarkMode] = useState(() => {
     try {
       return localStorage.getItem("skilltrack_theme") === "dark";
@@ -47,6 +61,7 @@ export default function AppLayout() {
   const practiceRef = useRef(null);
   const learnRef = useRef(null);
   const careerRef = useRef(null);
+  const notifRef = useRef(null);
 
   // Apply dark mode class to root
   useEffect(() => {
@@ -64,6 +79,7 @@ export default function AppLayout() {
     setPracticeOpen(false);
     setLearnOpen(false);
     setCareerOpen(false);
+    setNotifOpen(false);
     setMobileOpen(false);
   }, [location.pathname]);
 
@@ -73,18 +89,26 @@ export default function AppLayout() {
       if (practiceRef.current && !practiceRef.current.contains(e.target)) setPracticeOpen(false);
       if (learnRef.current && !learnRef.current.contains(e.target)) setLearnOpen(false);
       if (careerRef.current && !careerRef.current.contains(e.target)) setCareerOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/flashcards", "/notes"].some((p) =>
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const markAllRead = () => {
+    setNotifications(notifications.map((n) => ({ ...n, unread: false })));
+    toast.success("All notifications marked as read");
+  };
+
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/achievements"].some((p) =>
+  const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements"].some((p) =>
     location.pathname.startsWith(p)
   );
 
@@ -125,6 +149,7 @@ export default function AppLayout() {
                   setLearnOpen(!learnOpen);
                   setPracticeOpen(false);
                   setCareerOpen(false);
+                  setNotifOpen(false);
                 }}
                 className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                   isLearnActive || learnOpen
@@ -157,7 +182,14 @@ export default function AppLayout() {
                     <Boxes size={17} className="mt-0.5 text-violet-600" />
                     <div>
                       <p className="text-xs font-bold">System Design Arena</p>
-                      <p className="text-[11px] text-slate-500">Architecture canvas & QPS math</p>
+                      <p className="text-[11px] text-slate-500">Live traffic simulation & QPS</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/query-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Database size={17} className="mt-0.5 text-emerald-600" />
+                    <div>
+                      <p className="text-xs font-bold">SQL & Mongo Query Lab</p>
+                      <p className="text-[11px] text-slate-500">In-browser database studio</p>
                     </div>
                   </NavLink>
                   <NavLink to="/flashcards" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -185,6 +217,7 @@ export default function AppLayout() {
                   setPracticeOpen(!practiceOpen);
                   setLearnOpen(false);
                   setCareerOpen(false);
+                  setNotifOpen(false);
                 }}
                 className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                   isPracticeActive || practiceOpen
@@ -216,7 +249,7 @@ export default function AppLayout() {
                   <NavLink to="/projects" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <FolderGit2 size={17} className="mt-0.5 text-blue-600" />
                     <div>
-                      <p className="text-xs font-bold">Capstone Projects</p>
+                      <p className="text-xs font-bold">Capstone Studio</p>
                       <p className="text-[11px] text-slate-500">Guided portfolio builds</p>
                     </div>
                   </NavLink>
@@ -260,6 +293,7 @@ export default function AppLayout() {
                   setCareerOpen(!careerOpen);
                   setLearnOpen(false);
                   setPracticeOpen(false);
+                  setNotifOpen(false);
                 }}
                 className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition ${
                   isCareerActive || careerOpen
@@ -274,11 +308,11 @@ export default function AppLayout() {
 
               {careerOpen && (
                 <div className="absolute left-0 mt-2 w-64 rounded-2xl border border-slate-100 bg-white p-2 shadow-xl animate-in fade-in zoom-in-95 z-50 dark:border-slate-800 dark:bg-slate-900">
-                  <NavLink to="/career" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <Sparkles size={17} className="mt-0.5 text-brand-600" />
+                  <NavLink to="/resume-builder" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <FileText size={17} className="mt-0.5 text-blue-600" />
                     <div>
-                      <p className="text-xs font-bold">AI Career Assistant</p>
-                      <p className="text-[11px] text-slate-500">Skill gaps & outreach letters</p>
+                      <p className="text-xs font-bold">ATS Resume Studio</p>
+                      <p className="text-[11px] text-slate-500">Auto-import & PDF export</p>
                     </div>
                   </NavLink>
                   <NavLink to="/portfolio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -286,6 +320,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Developer Portfolio</p>
                       <p className="text-[11px] text-slate-500">Live shareable resume & stats</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/career" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Sparkles size={17} className="mt-0.5 text-brand-600" />
+                    <div>
+                      <p className="text-xs font-bold">AI Career Assistant</p>
+                      <p className="text-[11px] text-slate-500">Skill gaps & outreach letters</p>
                     </div>
                   </NavLink>
                   <NavLink to="/jobs" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -300,13 +341,6 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Certificates</p>
                       <p className="text-[11px] text-slate-500">Verified credentials & lookup</p>
-                    </div>
-                  </NavLink>
-                  <NavLink to="/achievements" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
-                    <ShieldCheck size={17} className="mt-0.5 text-emerald-600" />
-                    <div>
-                      <p className="text-xs font-bold">Badges</p>
-                      <p className="text-[11px] text-slate-500">Milestones & achievements</p>
                     </div>
                   </NavLink>
                 </div>
@@ -328,8 +362,57 @@ export default function AppLayout() {
             )}
           </nav>
 
-          {/* Right Controls: Dark Mode Toggle + Profile + Logout */}
-          <div className="hidden items-center gap-3 md:flex">
+          {/* Right Controls: Notifications + Dark Mode Toggle + Profile + Logout */}
+          <div className="hidden items-center gap-2.5 md:flex">
+            {/* Notification Bell */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="relative rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                title="Notifications"
+              >
+                <Bell size={16} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-100 bg-white p-3 shadow-2xl animate-in fade-in zoom-in-95 z-50 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">Notifications</span>
+                    {unreadCount > 0 && (
+                      <button onClick={markAllRead} className="text-[11px] font-semibold text-brand-600 hover:underline">
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 mt-2 max-h-72 overflow-y-auto">
+                    {notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={`rounded-xl p-2.5 text-xs transition space-y-1 ${
+                          n.unread
+                            ? "bg-brand-50/70 border border-brand-100 dark:bg-brand-950/40 dark:border-brand-900"
+                            : "bg-slate-50/60 dark:bg-slate-800/40"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-slate-900 dark:text-slate-100">{n.title}</p>
+                          <span className="text-[9px] text-slate-400">{n.time}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">{n.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Dark Mode Toggle */}
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -338,6 +421,7 @@ export default function AppLayout() {
               {darkMode ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
             </button>
 
+            {/* Profile Pill */}
             <NavLink
               to="/portfolio"
               className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 px-3 py-1.5 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
@@ -351,6 +435,7 @@ export default function AppLayout() {
               </span>
             </NavLink>
 
+            {/* Logout */}
             <button
               onClick={logout}
               className="rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-rose-600 dark:border-slate-800 dark:text-slate-400"
@@ -412,6 +497,9 @@ export default function AppLayout() {
               <NavLink to="/system-design" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Boxes size={17} /> System Design Arena
               </NavLink>
+              <NavLink to="/query-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Database size={17} /> SQL & Mongo Query Lab
+              </NavLink>
               <NavLink to="/flashcards" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Brain size={17} /> Smart Flashcards
               </NavLink>
@@ -435,6 +523,9 @@ export default function AppLayout() {
 
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">Career</p>
+              <NavLink to="/resume-builder" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <FileText size={17} /> ATS Resume Studio
+              </NavLink>
               <NavLink to="/portfolio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Globe size={17} /> Live Portfolio
               </NavLink>
