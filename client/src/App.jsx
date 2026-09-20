@@ -24,6 +24,10 @@ import ProjectsStudio from "./pages/ProjectsStudio";
 import PortfolioView from "./pages/PortfolioView";
 import QueryLab from "./pages/QueryLab";
 import ResumeBuilder from "./pages/ResumeBuilder";
+import ApiTester from "./pages/ApiTester";
+import TerminalLab from "./pages/TerminalLab";
+import Leaderboard from "./pages/Leaderboard";
+import StudyBuddy from "./pages/StudyBuddy";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -71,6 +75,10 @@ function Router() {
         <Route path="/certificates" element={<Certificates />} />
         <Route path="/portfolio" element={<PortfolioView />} />
         <Route path="/resume-builder" element={<ResumeBuilder />} />
+        <Route path="/api-tester" element={<ApiTester />} />
+        <Route path="/terminal-lab" element={<TerminalLab />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/study-buddy" element={<StudyBuddy />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

@@ -26,7 +26,10 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  Terminal,
+  Trophy,
   UserRound,
+  Users,
   X,
   Zap
 } from "lucide-react";
@@ -105,7 +108,7 @@ export default function AppLayout() {
   const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements"].some((p) =>
@@ -260,6 +263,20 @@ export default function AppLayout() {
                       <p className="text-[11px] text-slate-500">Pomodoro & ambient soundscapes</p>
                     </div>
                   </NavLink>
+                  <NavLink to="/terminal-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Terminal size={17} className="mt-0.5 text-emerald-500" />
+                    <div>
+                      <p className="text-xs font-bold">Git & UNIX Terminal</p>
+                      <p className="text-[11px] text-slate-500">Live SVG branch & commit graph</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/api-tester" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Code2 size={17} className="mt-0.5 text-amber-500" />
+                    <div>
+                      <p className="text-xs font-bold">REST API Client Studio</p>
+                      <p className="text-[11px] text-slate-500">In-browser request sandbox</p>
+                    </div>
+                  </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <Zap size={17} className="mt-0.5 text-purple-600" />
                     <div>
@@ -284,6 +301,36 @@ export default function AppLayout() {
             >
               <MessagesSquare size={16} />
               Community
+            </NavLink>
+
+            {/* Leaderboard Link */}
+            <NavLink
+              to="/leaderboard"
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300 shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                }`
+              }
+            >
+              <Trophy size={16} className="text-amber-500" />
+              Leaderboard
+            </NavLink>
+
+            {/* Study Buddy Link */}
+            <NavLink
+              to="/study-buddy"
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300 shadow-sm"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                }`
+              }
+            >
+              <Users size={16} className="text-teal-500" />
+              Study Buddy
             </NavLink>
 
             {/* Career Dropdown */}
@@ -481,6 +528,12 @@ export default function AppLayout() {
               <NavLink to="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <LayoutDashboard size={17} /> Dashboard
               </NavLink>
+              <NavLink to="/leaderboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Trophy size={17} className="text-amber-500" /> Global Leaderboard
+              </NavLink>
+              <NavLink to="/study-buddy" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Users size={17} className="text-teal-500" /> Study Buddy Network
+              </NavLink>
               <NavLink to="/community" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <MessagesSquare size={17} /> Community Forum
               </NavLink>
@@ -507,6 +560,12 @@ export default function AppLayout() {
 
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">Practice</p>
+              <NavLink to="/terminal-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Terminal size={17} className="text-emerald-500" /> Git & UNIX Terminal
+              </NavLink>
+              <NavLink to="/api-tester" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Code2 size={17} className="text-amber-500" /> REST API Client Studio
+              </NavLink>
               <NavLink to="/interview" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <BrainCircuit size={17} className="text-indigo-600" /> AI Mock Interview
               </NavLink>

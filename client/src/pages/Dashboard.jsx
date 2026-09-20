@@ -20,7 +20,10 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  Terminal,
   TrendingUp,
+  Trophy,
+  Users,
   Zap
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -268,6 +271,78 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-slate-700">
               Start Focus <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/terminal-lab"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
+                <Terminal size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Git & UNIX Terminal Lab</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Practice Git branching & merging with live visual SVG commit graph and real UNIX shell emulator.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600">
+              Open Terminal <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/api-tester"
+            className="card group flex flex-col justify-between overflow-hidden border-amber-100 p-5 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-600 group-hover:text-white">
+                <Code2 size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">REST API Client Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                In-browser HTTP sandbox: headers, payload editor, latency timing, status codes, and test collections.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-amber-600">
+              Test APIs <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/leaderboard"
+            className="card group flex flex-col justify-between overflow-hidden border-yellow-100 p-5 transition hover:-translate-y-1 hover:border-yellow-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition group-hover:bg-yellow-600 group-hover:text-white">
+                <Trophy size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Global Leaderboard</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Compete across 7 tiered leagues (Bronze to Legend), maintain study streaks, and claim weekly rewards.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-yellow-600">
+              View Rankings <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/study-buddy"
+            className="card group flex flex-col justify-between overflow-hidden border-teal-100 p-5 transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 transition group-hover:bg-teal-600 group-hover:text-white">
+                <Users size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Study Buddy Network</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Pair up with ambitious peers by track, conduct peer mock interviews, and collaborate in study squads.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-teal-600">
+              Find Buddies <ArrowRight size={14} />
             </div>
           </Link>
         </div>
