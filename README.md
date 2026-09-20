@@ -13,7 +13,11 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 8-module training arena launcher
+- Responsive dashboard with 12-module flagship training arena launcher
+- Git & UNIX Terminal Lab with interactive bash shell, realistic command parsing (`git status`, `add`, `commit`, `branch`, `checkout`, `merge`, `log`), and live visual SVG commit graph topology (`/terminal-lab`)
+- REST API Client Studio: Postman-style in-browser HTTP client with method switcher, headers/body JSON editor, latency timer, status badge, formatted viewer, and preset test endpoints (`/api-tester`)
+- Gamified Global Developer League Leaderboard: 7 tiered leagues (Bronze to Legend), top-3 podium, streak champions, XP breakdown, and user rank spotlight card (`/leaderboard`)
+- Peer Study Buddy & Pair Network: 1-on-1 matchmaking by career track, schedule mock interview sessions, collaborative study squads, and live presence indicator (`/study-buddy`)
 - System Design Arena with Live Traffic Simulator, 10x Black Friday Spike trigger, interactive architecture canvas, case studies (TinyURL, Netflix, WhatsApp, Rate Limiter), and QPS capacity calculator (`/system-design`)
 - SQL & MongoDB Query Studio with in-browser query execution, visual data tables, and query execution plan analyzer (`/query-lab`)
 - ATS Resume Builder & PDF Studio with 1-click SkillTrack verified credentials auto-import, ATS score checker, and printable export (`/resume-builder`)
