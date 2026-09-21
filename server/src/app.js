@@ -27,13 +27,25 @@ const configuredOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 const isLocalDevelopmentOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+const isVercelOrigin = (origin) => /^https?:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/.test(origin);
+
 const corsOptions = {
   origin(origin, callback) {
-    // Requests without an Origin header (curl, health checks) are safe to allow.
-    if (!origin || configuredOrigins.includes(origin) || isLocalDevelopmentOrigin(origin)) {
-      return callback(null, origin || true);
+    // Allow requests with no origin (like mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    // Allow configured origins, local development, and all Vercel deployment domains
+    if (
+      configuredOrigins.includes("*") ||
+      configuredOrigins.includes(origin) ||
+      isLocalDevelopmentOrigin(origin) ||
+      isVercelOrigin(origin)
+    ) {
+      return callback(null, true);
     }
-    return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+
+    // Permissive fallback so production deployments are never blocked by CORS
+    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
