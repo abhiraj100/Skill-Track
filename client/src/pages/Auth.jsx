@@ -21,6 +21,16 @@ export function Login() {
       <Field label="Email"><input className="input" type="email" value={values.email} onChange={e => setValues({...values,email:e.target.value})}/></Field>
       <Field label="Password"><div className="relative"><input className="input pr-11" type={show?"text":"password"} value={values.password} onChange={e => setValues({...values,password:e.target.value})}/><button type="button" onClick={()=>setShow(!show)} className="absolute right-3 top-3 text-slate-400">{show?<EyeOff size={18}/>:<Eye size={18}/>}</button></div></Field>
       <button className="btn-primary w-full">Sign in</button>
+      <button 
+        type="button" 
+        onClick={() => {
+          login({ email: "user@skilltrack.dev", password: "User@123" })
+            .then(() => { toast.success("Signed in as Alex Rivera (Demo)"); navigate("/dashboard"); });
+        }}
+        className="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 transition shadow-sm"
+      >
+        ✨ Instant One-Click Demo Access
+      </button>
       <p className="text-center text-sm text-slate-500">New here? <Link className="font-semibold text-brand-600" to="/register">Create an account</Link></p>
     </form>
   </AuthShell>;
