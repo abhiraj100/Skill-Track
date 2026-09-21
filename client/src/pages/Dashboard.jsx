@@ -65,14 +65,47 @@ export default function Dashboard() {
           { _id: 'demo_c3', title: 'Full-Stack System Design for FAANG', description: 'Architect TinyURL, Netflix streaming, and rate limiters.', level: 'Advanced', lessonsCount: 16, thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400' }
         ]);
         setEnrollments([
-          { _id: 'e1', progress: 75, course: { title: 'Complete React 18 & TypeScript Architecture', thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400' } },
-          { _id: 'e2', progress: 40, course: { title: 'Full-Stack System Design for FAANG', thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400' } }
+          { 
+            _id: 'e1', 
+            progress: 75, 
+            course: { 
+              _id: 'demo_c1',
+              title: 'Complete React 18 & TypeScript Architecture', 
+              difficulty: 'Advanced', 
+              duration: '8h', 
+              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400' 
+            } 
+          },
+          { 
+            _id: 'e2', 
+            progress: 40, 
+            course: { 
+              _id: 'demo_c3',
+              title: 'Full-Stack System Design for FAANG', 
+              difficulty: 'Advanced', 
+              duration: '12h', 
+              thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400' 
+            } 
+          }
         ]);
         setJobs([
           { _id: 'j1', company: 'Stripe', role: 'Full Stack Engineer', status: 'Interviewing' },
           { _id: 'j2', company: 'Google', role: 'Software Engineer III', status: 'Applied' }
         ]);
-        setStudy({ minutesToday: 45, streakDays: 7 });
+        setStudy({
+          dailyGoal: 45,
+          todayMinutes: 30,
+          streak: 7,
+          weekly: [
+            { date: "2026-09-16", minutes: 20 },
+            { date: "2026-09-17", minutes: 35 },
+            { date: "2026-09-18", minutes: 45 },
+            { date: "2026-09-19", minutes: 30 },
+            { date: "2026-09-20", minutes: 40 },
+            { date: "2026-09-21", minutes: 25 },
+            { date: "2026-09-22", minutes: 30 }
+          ]
+        });
       });
   }, []);
 
@@ -454,35 +487,38 @@ export default function Dashboard() {
 
           {enrollments.length ? (
             <div className="space-y-3">
-              {enrollments.slice(0, 3).map((item) => (
-                <div key={item._id} className="card flex gap-4 p-4">
-                  <img src={item.course.thumbnail} className="hidden h-24 w-32 rounded-xl object-cover sm:block" alt="" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-bold text-slate-900">{item.course.title}</h3>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {item.course.difficulty} · {item.course.duration}
-                        </p>
+              {enrollments.slice(0, 3).map((item) => {
+                const course = item?.course || {};
+                return (
+                  <div key={item?._id || Math.random()} className="card flex gap-4 p-4">
+                    <img src={course.thumbnail || "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400"} className="hidden h-24 w-32 rounded-xl object-cover sm:block" alt="" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold text-slate-900 dark:text-white">{course.title || "Course Track"}</h3>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {course.difficulty || "Advanced"} · {course.duration || "8h"}
+                          </p>
+                        </div>
+                        <span className="text-sm font-bold text-brand-600">{item?.progress || 0}%</span>
                       </div>
-                      <span className="text-sm font-bold text-brand-600">{item.progress}%</span>
-                    </div>
-                    <div className="mt-4">
-                      <ProgressBar value={item.progress} />
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <Link to={`/courses/${item.course._id}`} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700 hover:text-brand-600">
-                        Continue <ArrowRight size={15} />
-                      </Link>
-                      {item.progress === 100 && (
-                        <Link to="/certificates" className="text-xs font-bold text-amber-600 hover:underline">
-                          View Certificate 🏆
+                      <div className="mt-4">
+                        <ProgressBar value={item?.progress || 0} />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <Link to={course._id ? `/courses/${course._id}` : "/courses"} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700 hover:text-brand-600 dark:text-slate-300">
+                          Continue <ArrowRight size={15} />
                         </Link>
-                      )}
+                        {item?.progress === 100 && (
+                          <Link to="/certificates" className="text-xs font-bold text-amber-600 hover:underline">
+                            View Certificate 🏆
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="card p-8 text-center">

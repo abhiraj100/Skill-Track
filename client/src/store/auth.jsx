@@ -15,7 +15,18 @@ export function AuthProvider({ children }) {
     api.get("/auth/me").then(({ data }) => {
       setUser(data.user);
       localStorage.setItem("skilltrack_user", JSON.stringify(data.user));
-    }).catch(() => logout()).finally(() => setLoading(false));
+    }).catch((err) => {
+      // If 401 Unauthorized, token is explicitly invalid -> logout
+      if (err.response?.status === 401) {
+        logout();
+      } else {
+        // Network error, 503, or offline -> preserve cached user session
+        const cached = localStorage.getItem("skilltrack_user");
+        if (cached) {
+          try { setUser(JSON.parse(cached)); } catch {}
+        }
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   function saveAuth(data) {
