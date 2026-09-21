@@ -28,6 +28,10 @@ import ApiTester from "./pages/ApiTester";
 import TerminalLab from "./pages/TerminalLab";
 import Leaderboard from "./pages/Leaderboard";
 import StudyBuddy from "./pages/StudyBuddy";
+import DockerLab from "./pages/DockerLab";
+import MicroservicesLab from "./pages/MicroservicesLab";
+import CicdPipeline from "./pages/CicdPipeline";
+import CodeArena from "./pages/CodeArena";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -79,6 +83,10 @@ function Router() {
         <Route path="/terminal-lab" element={<TerminalLab />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/study-buddy" element={<StudyBuddy />} />
+        <Route path="/docker-lab" element={<DockerLab />} />
+        <Route path="/microservices-lab" element={<MicroservicesLab />} />
+        <Route path="/cicd-pipeline" element={<CicdPipeline />} />
+        <Route path="/code-arena" element={<CodeArena />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

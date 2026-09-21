@@ -13,7 +13,11 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 12-module flagship training arena launcher
+- Responsive dashboard with 16-module flagship training arena launcher
+- Docker & Kubernetes Container Studio: Multi-stage Dockerfile layer builder, layer cache inspector, Compose fleet simulator with fault injection, and live Kubernetes HPA pod autoscaler (`/docker-lab`)
+- Kafka & Microservices Event Bus Simulator: Distributed pub/sub streaming, partition hash routing, dead-letter queue (DLQ) with exponential backoff, and circuit breaker state machine (`/microservices-lab`)
+- CI/CD Pipeline & GitHub Actions Studio: 8-stage visual DAG runner, live build console logs, and editable `.github/workflows/deploy.yml` YAML builder (`/cicd-pipeline`)
+- 1v1 Real-Time Code Duel Arena: Live speed coding battles vs AI bots, rival telemetry typing progress, automated test suite runner, and ELO ladder ratings (`/code-arena`)
 - Git & UNIX Terminal Lab with interactive bash shell, realistic command parsing (`git status`, `add`, `commit`, `branch`, `checkout`, `merge`, `log`), and live visual SVG commit graph topology (`/terminal-lab`)
 - REST API Client Studio: Postman-style in-browser HTTP client with method switcher, headers/body JSON editor, latency timer, status badge, formatted viewer, and preset test endpoints (`/api-tester`)
 - Gamified Global Developer League Leaderboard: 7 tiered leagues (Bronze to Legend), top-3 podium, streak champions, XP breakdown, and user rank spotlight card (`/leaderboard`)

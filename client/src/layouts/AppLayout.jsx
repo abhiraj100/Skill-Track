@@ -5,6 +5,7 @@ import {
   Bell,
   BookMarked,
   BookOpen,
+  Box,
   Boxes,
   Brain,
   BrainCircuit,
@@ -23,9 +24,12 @@ import {
   Menu,
   MessagesSquare,
   Moon,
+  Radio,
+  Rocket,
   ShieldCheck,
   Sparkles,
   Sun,
+  Swords,
   Terminal,
   Trophy,
   UserRound,
@@ -105,10 +109,10 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes", "/microservices-lab"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements"].some((p) =>
@@ -209,6 +213,13 @@ export default function AppLayout() {
                       <p className="text-[11px] text-slate-500">Key takeaways & bookmarks</p>
                     </div>
                   </NavLink>
+                  <NavLink to="/microservices-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Radio size={17} className="mt-0.5 text-purple-500" />
+                    <div>
+                      <p className="text-xs font-bold">Kafka & Event Bus</p>
+                      <p className="text-[11px] text-slate-500">Pub/Sub streams & circuit breaker</p>
+                    </div>
+                  </NavLink>
                 </div>
               )}
             </div>
@@ -275,6 +286,27 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">REST API Client Studio</p>
                       <p className="text-[11px] text-slate-500">In-browser request sandbox</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/docker-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Box size={17} className="mt-0.5 text-blue-500" />
+                    <div>
+                      <p className="text-xs font-bold">Docker & Kubernetes</p>
+                      <p className="text-[11px] text-slate-500">Containers & HPA scaling</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/cicd-pipeline" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Rocket size={17} className="mt-0.5 text-emerald-500" />
+                    <div>
+                      <p className="text-xs font-bold">CI/CD Pipeline Studio</p>
+                      <p className="text-[11px] text-slate-500">GitHub Actions DAG runner</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/code-arena" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Swords size={17} className="mt-0.5 text-rose-500" />
+                    <div>
+                      <p className="text-xs font-bold">1v1 Code Duel Arena</p>
+                      <p className="text-[11px] text-slate-500">Real-time speed coding battles</p>
                     </div>
                   </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -556,10 +588,22 @@ export default function AppLayout() {
               <NavLink to="/flashcards" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Brain size={17} /> Smart Flashcards
               </NavLink>
+              <NavLink to="/microservices-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Radio size={17} className="text-purple-500" /> Kafka & Event Bus
+              </NavLink>
             </div>
 
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">Practice</p>
+              <NavLink to="/docker-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Box size={17} className="text-blue-500" /> Docker & Kubernetes
+              </NavLink>
+              <NavLink to="/cicd-pipeline" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Rocket size={17} className="text-emerald-500" /> CI/CD Pipeline Studio
+              </NavLink>
+              <NavLink to="/code-arena" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Swords size={17} className="text-rose-500" /> 1v1 Code Duel Arena
+              </NavLink>
               <NavLink to="/terminal-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Terminal size={17} className="text-emerald-500" /> Git & UNIX Terminal
               </NavLink>

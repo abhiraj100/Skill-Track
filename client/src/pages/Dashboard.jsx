@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Award,
-  BookOpen,
   BookMarked,
+  BookOpen,
+  Box,
   Boxes,
   Brain,
   BrainCircuit,
@@ -17,8 +18,11 @@ import {
   MapPin,
   Medal,
   MessagesSquare,
+  Radio,
+  Rocket,
   ShieldCheck,
   Sparkles,
+  Swords,
   Target,
   Terminal,
   TrendingUp,
@@ -343,6 +347,78 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-teal-600">
               Find Buddies <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/docker-lab"
+            className="card group flex flex-col justify-between overflow-hidden border-blue-100 p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+                <Box size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Docker & Kubernetes Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Multi-stage Dockerfile layer builder, Compose fleet simulator, and HPA auto-pod scaling.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-blue-600">
+              Open Studio <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/microservices-lab"
+            className="card group flex flex-col justify-between overflow-hidden border-purple-100 p-5 transition hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white">
+                <Radio size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Kafka & Microservices Lab</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Distributed pub/sub event bus, partition hashing, dead-letter queue retries, and circuit breaker.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-purple-600">
+              Explore Events <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/cicd-pipeline"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
+                <Rocket size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">CI/CD Pipeline Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Simulated 8-stage DAG execution, build console logs, and GitHub Actions YAML workflow builder.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600">
+              Run Pipeline <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/code-arena"
+            className="card group flex flex-col justify-between overflow-hidden border-rose-100 p-5 transition hover:-translate-y-1 hover:border-rose-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white">
+                <Swords size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">1v1 Code Duel Arena</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Head-to-head algorithmic speed coding against rival bots, automated test runner, and ELO ratings.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-rose-600">
+              Enter Arena <ArrowRight size={14} />
             </div>
           </Link>
         </div>
