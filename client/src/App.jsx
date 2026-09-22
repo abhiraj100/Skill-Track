@@ -36,6 +36,10 @@ import CloudArchitect from "./pages/CloudArchitect";
 import SecurityLab from "./pages/SecurityLab";
 import SalaryRadar from "./pages/SalaryRadar";
 import RegexLab from "./pages/RegexLab";
+import LoadTester from "./pages/LoadTester";
+import PerfAudit from "./pages/PerfAudit";
+import ErdStudio from "./pages/ErdStudio";
+import DesignSystemStudio from "./pages/DesignSystemStudio";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -133,6 +137,10 @@ function Router() {
         <Route path="/security-lab" element={<SecurityLab />} />
         <Route path="/salary-radar" element={<SalaryRadar />} />
         <Route path="/regex-lab" element={<RegexLab />} />
+        <Route path="/load-tester" element={<LoadTester />} />
+        <Route path="/perf-audit" element={<PerfAudit />} />
+        <Route path="/erd-studio" element={<ErdStudio />} />
+        <Route path="/design-system" element={<DesignSystemStudio />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

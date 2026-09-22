@@ -15,18 +15,21 @@ import {
   DollarSign,
   Flame,
   FolderGit2,
+  Gauge,
   Globe,
   Headphones,
   Layers,
   MapPin,
   Medal,
   MessagesSquare,
+  Palette,
   Radio,
   Rocket,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   Swords,
+  Table,
   Target,
   Terminal,
   TrendingUp,
@@ -543,6 +546,78 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-sky-600">
               Test Patterns <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/load-tester"
+            className="card group flex flex-col justify-between overflow-hidden border-amber-100 p-5 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-600 group-hover:text-white">
+                <Gauge size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">API Load & Stress Tester</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Simulate 1,000 concurrent Virtual Users, monitor latency percentiles (P99), and export k6 test scripts.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-amber-600">
+              Stress Test <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/perf-audit"
+            className="card group flex flex-col justify-between overflow-hidden border-teal-100 p-5 transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 transition group-hover:bg-teal-600 group-hover:text-white">
+                <Zap size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Core Web Vitals Audit</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Google Core Web Vitals diagnostic (LCP, INP, CLS), network waterfall timeline, and 1-click recipes.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-teal-600">
+              Audit Site <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/erd-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-blue-100 p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+                <Table size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Database Schema & ERD</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Interactive Entity Relationship Diagram modeler with foreign keys, PostgreSQL DDL, and Prisma export.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-blue-600">
+              Design Schema <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/design-system"
+            className="card group flex flex-col justify-between overflow-hidden border-purple-100 p-5 transition hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white">
+                <Palette size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Accessible Design System</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Token customizer, WCAG 2.1 AA/AAA contrast checker, color-blindness simulator, and Tailwind exporter.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-purple-600">
+              Customize Tokens <ArrowRight size={14} />
             </div>
           </Link>
         </div>

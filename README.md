@@ -13,7 +13,11 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 20-module flagship training arena launcher
+- Responsive dashboard with 24-module flagship training arena launcher
+- API Benchmark & Concurrency Load Testing Studio: Simulate up to 1,000 concurrent Virtual Users (VUs), live request rate (RPS), P50/P90/P95/P99 latency percentiles, bottleneck diagnostic engine, and 1-click runnable k6 script export (`/load-tester`)
+- Web Vitals & Frontend Performance Audit Studio: Core Web Vitals diagnostic (LCP, INP, CLS, FCP, TTFB), asset waterfall timeline, and 1-click remediation toggles (Code Splitting, Image formats, Font preload, Critical CSS) with real-time score updates (`/perf-audit`)
+- Database Schema & Visual ERD Studio: Interactive Entity Relationship Diagram canvas with foreign key connectors, industry presets (E-Commerce, B2B SaaS, LMS), and 1-click PostgreSQL DDL SQL & Prisma schema export (`/erd-studio`)
+- Design Systems & Accessible UI Component Sandbox: Live design tokens customizer (HSL palette, corner radius, shadows), interactive component state matrix, WCAG 2.1 AA/AAA contrast checker, color-blindness simulator, and Tailwind exporter (`/design-system`)
 - Cloud Architecture Studio & AWS Cost Estimator: Interactive multi-tier topology designer, real-world presets (SaaS, Video Streaming, AI Inference, Serverless), live monthly cost calculator ($/mo), and 1-click Terraform IaC code export (`/cloud-architect`)
 - Web Security & OWASP Pentest Sandbox: Hands-on interactive exploits and defenses for SQL Injection, Stored/Reflected XSS with CSP, JWT signature tampering & CVE-2015-9235 "none" algorithm bypass, CORS/CSRF headers, and an interactive OWASP Top 10 audit scorecard (`/security-lab`)
 - Tech Salary & Offer Negotiation Intelligence: Market total compensation (TC = Base + RSU + Bonus) explorer across 5 engineering tracks & 5 seniority levels (L3 to L7), 4-year RSU vesting schedule simulator with equity appreciation slider, side-by-side offer comparison matrix, and high-leverage counter-offer email generator (`/salary-radar`)

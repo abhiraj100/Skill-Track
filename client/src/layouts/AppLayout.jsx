@@ -19,6 +19,7 @@ import {
   DollarSign,
   FileText,
   FolderGit2,
+  Gauge,
   Globe,
   Headphones,
   LayoutDashboard,
@@ -27,6 +28,7 @@ import {
   Menu,
   MessagesSquare,
   Moon,
+  Palette,
   Radio,
   Rocket,
   ShieldAlert,
@@ -34,6 +36,7 @@ import {
   Sparkles,
   Sun,
   Swords,
+  Table,
   Terminal,
   Trophy,
   UserRound,
@@ -113,10 +116,10 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes", "/microservices-lab"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements", "/salary-radar"].some((p) =>
@@ -222,6 +225,27 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Kafka & Event Bus</p>
                       <p className="text-[11px] text-slate-500">Pub/Sub streams & circuit breaker</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/erd-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Table size={17} className="mt-0.5 text-blue-500" />
+                    <div>
+                      <p className="text-xs font-bold">Database ERD Studio</p>
+                      <p className="text-[11px] text-slate-500">Visual relational schema modeler</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/perf-audit" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Zap size={17} className="mt-0.5 text-teal-500" />
+                    <div>
+                      <p className="text-xs font-bold">Web Vitals & Performance</p>
+                      <p className="text-[11px] text-slate-500">Core Web Vitals & asset waterfall</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/design-system" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Palette size={17} className="mt-0.5 text-purple-500" />
+                    <div>
+                      <p className="text-xs font-bold">Design Systems Studio</p>
+                      <p className="text-[11px] text-slate-500">WCAG accessibility & tokens</p>
                     </div>
                   </NavLink>
                 </div>
@@ -332,6 +356,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Regex & ReDoS Lab</p>
                       <p className="text-[11px] text-slate-500">Pattern tester & backtracking</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/load-tester" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Gauge size={17} className="mt-0.5 text-amber-500" />
+                    <div>
+                      <p className="text-xs font-bold">API Concurrency Load Tester</p>
+                      <p className="text-[11px] text-slate-500">1,000 VUs & k6 script export</p>
                     </div>
                   </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -623,6 +654,15 @@ export default function AppLayout() {
               <NavLink to="/microservices-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Radio size={17} className="text-purple-500" /> Kafka & Event Bus
               </NavLink>
+              <NavLink to="/erd-studio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Table size={17} className="text-blue-500" /> Database ERD Studio
+              </NavLink>
+              <NavLink to="/perf-audit" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Zap size={17} className="text-teal-500" /> Web Vitals & Performance
+              </NavLink>
+              <NavLink to="/design-system" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Palette size={17} className="text-purple-500" /> Design Systems Studio
+              </NavLink>
             </div>
 
             <div className="space-y-1">
@@ -644,6 +684,9 @@ export default function AppLayout() {
               </NavLink>
               <NavLink to="/regex-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Binary size={17} className="text-sky-500" /> Regex & ReDoS Lab
+              </NavLink>
+              <NavLink to="/load-tester" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Gauge size={17} className="text-amber-500" /> API Concurrency Load Tester
               </NavLink>
               <NavLink to="/terminal-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Terminal size={17} className="text-emerald-500" /> Git & UNIX Terminal
