@@ -13,7 +13,11 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 16-module flagship training arena launcher
+- Responsive dashboard with 20-module flagship training arena launcher
+- Cloud Architecture Studio & AWS Cost Estimator: Interactive multi-tier topology designer, real-world presets (SaaS, Video Streaming, AI Inference, Serverless), live monthly cost calculator ($/mo), and 1-click Terraform IaC code export (`/cloud-architect`)
+- Web Security & OWASP Pentest Sandbox: Hands-on interactive exploits and defenses for SQL Injection, Stored/Reflected XSS with CSP, JWT signature tampering & CVE-2015-9235 "none" algorithm bypass, CORS/CSRF headers, and an interactive OWASP Top 10 audit scorecard (`/security-lab`)
+- Tech Salary & Offer Negotiation Intelligence: Market total compensation (TC = Base + RSU + Bonus) explorer across 5 engineering tracks & 5 seniority levels (L3 to L7), 4-year RSU vesting schedule simulator with equity appreciation slider, side-by-side offer comparison matrix, and high-leverage counter-offer email generator (`/salary-radar`)
+- Interactive Regex & ReDoS Vulnerability Lab: Real-time regex match highlighter, capture groups inspector, production pattern library (RFC 5322 Email, Strong Password, SemVer, IPv4, JWT), and static Catastrophic Backtracking (ReDoS) vulnerability static analyzer with adversarial micro-benchmark stress-tester (`/regex-lab`)
 - Docker & Kubernetes Container Studio: Multi-stage Dockerfile layer builder, layer cache inspector, Compose fleet simulator with fault injection, and live Kubernetes HPA pod autoscaler (`/docker-lab`)
 - Kafka & Microservices Event Bus Simulator: Distributed pub/sub streaming, partition hash routing, dead-letter queue (DLQ) with exponential backoff, and circuit breaker state machine (`/microservices-lab`)
 - CI/CD Pipeline & GitHub Actions Studio: 8-stage visual DAG runner, live build console logs, and editable `.github/workflows/deploy.yml` YAML builder (`/cicd-pipeline`)

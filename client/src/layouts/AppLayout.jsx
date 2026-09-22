@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Award,
   Bell,
+  Binary,
   BookMarked,
   BookOpen,
   Box,
@@ -12,8 +13,10 @@ import {
   BriefcaseBusiness,
   Check,
   ChevronDown,
+  Cloud,
   Code2,
   Database,
+  DollarSign,
   FileText,
   FolderGit2,
   Globe,
@@ -26,6 +29,7 @@ import {
   Moon,
   Radio,
   Rocket,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Sun,
@@ -112,10 +116,10 @@ export default function AppLayout() {
   const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes", "/microservices-lab"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements"].some((p) =>
+  const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements", "/salary-radar"].some((p) =>
     location.pathname.startsWith(p)
   );
 
@@ -309,6 +313,27 @@ export default function AppLayout() {
                       <p className="text-[11px] text-slate-500">Real-time speed coding battles</p>
                     </div>
                   </NavLink>
+                  <NavLink to="/cloud-architect" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Cloud size={17} className="mt-0.5 text-indigo-500" />
+                    <div>
+                      <p className="text-xs font-bold">Cloud Architect Studio</p>
+                      <p className="text-[11px] text-slate-500">Topology & AWS cost estimator</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/security-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <ShieldAlert size={17} className="mt-0.5 text-rose-500" />
+                    <div>
+                      <p className="text-xs font-bold">OWASP Security Lab</p>
+                      <p className="text-[11px] text-slate-500">SQLi, XSS & JWT pentest</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/regex-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Binary size={17} className="mt-0.5 text-sky-500" />
+                    <div>
+                      <p className="text-xs font-bold">Regex & ReDoS Lab</p>
+                      <p className="text-[11px] text-slate-500">Pattern tester & backtracking</p>
+                    </div>
+                  </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                     <Zap size={17} className="mt-0.5 text-purple-600" />
                     <div>
@@ -413,6 +438,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Job Tracker</p>
                       <p className="text-[11px] text-slate-500">Pipeline & interview dates</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/salary-radar" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <DollarSign size={17} className="mt-0.5 text-emerald-600" />
+                    <div>
+                      <p className="text-xs font-bold">Tech Salary Radar</p>
+                      <p className="text-[11px] text-slate-500">Levels TC & RSU vesting</p>
                     </div>
                   </NavLink>
                   <NavLink to="/certificates" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -604,6 +636,15 @@ export default function AppLayout() {
               <NavLink to="/code-arena" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Swords size={17} className="text-rose-500" /> 1v1 Code Duel Arena
               </NavLink>
+              <NavLink to="/cloud-architect" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Cloud size={17} className="text-indigo-500" /> Cloud Architect Studio
+              </NavLink>
+              <NavLink to="/security-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <ShieldAlert size={17} className="text-rose-500" /> OWASP Security Lab
+              </NavLink>
+              <NavLink to="/regex-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Binary size={17} className="text-sky-500" /> Regex & ReDoS Lab
+              </NavLink>
               <NavLink to="/terminal-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Terminal size={17} className="text-emerald-500" /> Git & UNIX Terminal
               </NavLink>
@@ -631,6 +672,9 @@ export default function AppLayout() {
               </NavLink>
               <NavLink to="/portfolio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Globe size={17} /> Live Portfolio
+              </NavLink>
+              <NavLink to="/salary-radar" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <DollarSign size={17} className="text-emerald-600" /> Tech Salary Radar
               </NavLink>
               <NavLink to="/career" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Sparkles size={17} /> AI Career Assistant

@@ -32,6 +32,10 @@ import DockerLab from "./pages/DockerLab";
 import MicroservicesLab from "./pages/MicroservicesLab";
 import CicdPipeline from "./pages/CicdPipeline";
 import CodeArena from "./pages/CodeArena";
+import CloudArchitect from "./pages/CloudArchitect";
+import SecurityLab from "./pages/SecurityLab";
+import SalaryRadar from "./pages/SalaryRadar";
+import RegexLab from "./pages/RegexLab";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -125,6 +129,10 @@ function Router() {
         <Route path="/microservices-lab" element={<MicroservicesLab />} />
         <Route path="/cicd-pipeline" element={<CicdPipeline />} />
         <Route path="/code-arena" element={<CodeArena />} />
+        <Route path="/cloud-architect" element={<CloudArchitect />} />
+        <Route path="/security-lab" element={<SecurityLab />} />
+        <Route path="/salary-radar" element={<SalaryRadar />} />
+        <Route path="/regex-lab" element={<RegexLab />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

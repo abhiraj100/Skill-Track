@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Award,
+  Binary,
   BookMarked,
   BookOpen,
   Box,
@@ -9,7 +10,9 @@ import {
   Brain,
   BrainCircuit,
   BriefcaseBusiness,
+  Cloud,
   Code2,
+  DollarSign,
   Flame,
   FolderGit2,
   Globe,
@@ -20,6 +23,7 @@ import {
   MessagesSquare,
   Radio,
   Rocket,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Swords,
@@ -467,6 +471,78 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-rose-600">
               Enter Arena <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/cloud-architect"
+            className="card group flex flex-col justify-between overflow-hidden border-indigo-100 p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white">
+                <Cloud size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Cloud Architecture & Costs</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Interactive AWS topology designer, real-time monthly cost calculator, and 1-click Terraform export.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-indigo-600">
+              Design Topology <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/security-lab"
+            className="card group flex flex-col justify-between overflow-hidden border-rose-100 p-5 transition hover:-translate-y-1 hover:border-rose-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white">
+                <ShieldAlert size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">OWASP Security Sandbox</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Live interactive exploit sandbox: SQL Injection, Stored XSS, JWT tampering, and OWASP audit scorecard.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-rose-600">
+              Launch Pentest <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/salary-radar"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
+                <DollarSign size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Tech Salary & Offer Radar</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Engineering TC benchmarks (Base + RSU + Bonus), 4-year vesting simulator, and counter-offer generator.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600">
+              Explore Levels <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/regex-lab"
+            className="card group flex flex-col justify-between overflow-hidden border-sky-100 p-5 transition hover:-translate-y-1 hover:border-sky-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition group-hover:bg-sky-600 group-hover:text-white">
+                <Binary size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Regex & ReDoS Analyzer</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Real-time pattern match visualizer, capture group inspector, and catastrophic backtracking detector.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-sky-600">
+              Test Patterns <ArrowRight size={14} />
             </div>
           </Link>
         </div>
