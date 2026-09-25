@@ -4,9 +4,13 @@ import {
   AlertTriangle,
   ArrowRight,
   Boxes,
+  Bug,
   Calculator,
+  Check,
   CheckCircle2,
   ChevronRight,
+  Compass,
+  Cpu,
   Database,
   Flame,
   Globe,
@@ -14,10 +18,15 @@ import {
   HelpCircle,
   Layers,
   Network,
+  Play,
   Radio,
+  RefreshCw,
   RotateCcw,
   Server,
   ShieldAlert,
+  ShieldCheck,
+  Skull,
+  Sliders,
   Sparkles,
   Trophy,
   XCircle,
@@ -129,6 +138,58 @@ const CASE_STUDIES = [
       { name: "Sliding Window Log / Counter", role: "Tracks timestamps in a Redis Sorted Set (ZADD / ZREMRANGEBYSCORE) for precise windowing." }
     ],
     deepDive: "Race Condition Defense: Multiple concurrent requests could read counter = 99 and allow both through. Atomic Lua scripts executed directly in Redis ensure thread-safe increment-and-check."
+  },
+  {
+    id: "uber",
+    title: "Design Uber (Geospatial Ride Dispatch & Real-Time Driver Matching)",
+    difficulty: "Hard",
+    traffic: "20M Active Drivers · 1M Driver Pings/Sec",
+    summary: "Real-time geospatial dispatch matching nearest drivers with riders in under 1 second using spatial indexing.",
+    requirements: {
+      functional: [
+        "Track real-time driver GPS coordinates pinged every 4 seconds",
+        "Given rider pickup location, find top 10 available drivers within a 3km radius",
+        "Handle trip dispatch state machine (Requested -> Dispatched -> Arrived -> In-Trip -> Completed)"
+      ],
+      nonFunctional: [
+        "Sub-1000ms driver search latency globally",
+        "High availability — riders must be able to hail a ride even during regional failover",
+        "Battery & bandwidth efficiency on mobile driver clients"
+      ]
+    },
+    components: [
+      { name: "Location Ingestion Gateway (Netty / Go)", role: "Ingests 1M UDP/WebSocket location pings/sec; terminates connections efficiently." },
+      { name: "Geospatial Index Cluster (Uber H3 / QuadTree)", role: "Partitions earth into hierarchical hexagonal cells (H3 Resolution 8); enables O(1) neighboring cell lookups." },
+      { name: "Dispatch Matchmaking Engine (Ringpop)", role: "Consistent hashing ring coordinating distributed locks on available drivers to prevent double-booking." },
+      { name: "Persistent Trip Store (Cassandra / DynamoDB)", role: "Time-series append store tracking GPS trip routes and billing audit logs." }
+    ],
+    deepDive: "Why Uber H3 Hexagons over Geohash? All neighboring hexagon cells are equidistant from the center cell (unlike square Geohashes where diagonals are 1.414x further), eliminating directional bias in radius queries."
+  },
+  {
+    id: "twitter",
+    title: "Design Twitter / X (Celebrity Fan-Out & Real-Time Timelines)",
+    difficulty: "Hard",
+    traffic: "350M DAU · 500M Tweets/Day · 50k Reads/Sec",
+    summary: "Distributed timeline architecture solving the 'Justin Bieber Problem' through hybrid Fan-Out on Write and Fan-Out on Read.",
+    requirements: {
+      functional: [
+        "Users can publish tweets (text, images, links) up to 280 characters",
+        "Users can view a real-time Home Timeline aggregating recent tweets from accounts they follow",
+        "Support search by hashtag and full-text keyword"
+      ],
+      nonFunctional: [
+        "Sub-200ms timeline load latency globally",
+        "High availability (AP model) — slight timeline lag is acceptable over total outage",
+        "Scalable fan-out capable of handling users with 100M+ followers"
+      ]
+    },
+    components: [
+      { name: "Timeline Cache (Redis Cluster)", role: "Pre-computed lists of 800 tweet IDs per active user stored in Redis in-memory Lists." },
+      { name: "Fan-Out Service Worker Fleet", role: "For standard users (<25k followers), pushes new tweet IDs into all follower timeline caches on write." },
+      { name: "Celebrity Read-Merge Engine", role: "For celebrity accounts (>1M followers), skips fan-out on write; dynamically merges celebrity tweets at read time." },
+      { name: "Tweet Repository (Distributed Document Store)", role: "Stores raw tweet text, media URLs, and metadata partitioned by Tweet ID." }
+    ],
+    deepDive: "The Celebrity Problem (Fan-Out on Write Failure): If an account with 100M followers tweets, fan-out on write requires 100 million Redis writes simultaneously, choking message queues. Twitter solves this via a hybrid model: fan-out for ordinary users, merge-on-read for celebrities."
   }
 ];
 
@@ -180,7 +241,16 @@ const QUIZ_QUESTIONS = [
 ];
 
 export default function SystemDesign() {
-  const [activeTab, setActiveTab] = useState("simulator"); // 'simulator' | 'cases' | 'canvas' | 'calculator' | 'quiz'
+  const [activeTab, setActiveTab] = useState("simulator"); // 'simulator' | 'cases' | 'canvas' | 'chaos' | 'cap' | 'calculator' | 'quiz'
+  
+  // Chaos Engineering State
+  const [chaosEvent, setChaosEvent] = useState(null); // 'redis_crash' | 'db_sever' | 'partition' | 'oom'
+  const [chaosLogs, setChaosLogs] = useState([]);
+  const [isMitigated, setIsMitigated] = useState(false);
+  const [chaosTimer, setChaosTimer] = useState(0);
+
+  // CAP Theorem State
+  const [capScenario, setCapScenario] = useState("banking"); // 'banking' | 'social' | 'collab' | 'ecommerce'
   const [selectedCase, setSelectedCase] = useState(CASE_STUDIES[0]);
   const [selectedComponent, setSelectedComponent] = useState(null);
 
@@ -299,6 +369,8 @@ export default function SystemDesign() {
               { id: "simulator", label: "Live Traffic Simulator", icon: Zap },
               { id: "cases", label: "Case Studies", icon: Layers },
               { id: "canvas", label: "Architecture Canvas", icon: Network },
+              { id: "chaos", label: "Chaos Monkey Lab", icon: Flame },
+              { id: "cap", label: "CAP / PACELC Matrix", icon: ShieldAlert },
               { id: "calculator", label: "Scale Estimator", icon: Calculator },
               { id: "quiz", label: "System Design Quiz", icon: HelpCircle }
             ].map((t) => {
@@ -744,6 +816,295 @@ export default function SystemDesign() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* CHAOS MONKEY & FAULT INJECTION LAB */}
+      {activeTab === "chaos" && (
+        <div className="space-y-6">
+          <div className="card p-6 sm:p-8 space-y-6 border-rose-200">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <span className="badge bg-rose-100 text-rose-800 font-bold flex items-center gap-1.5">
+                  <Skull size={14} /> Chaos Engineering Suite (Netflix Simian Army Mode)
+                </span>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Failure Injection & Resiliency Sandbox</h2>
+                <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                  Simulate cascading outages in production distributed systems. Measure Blast Radius, observe self-healing circuit breakers, and execute recovery playbooks.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {chaosEvent && (
+                  <button
+                    onClick={() => {
+                      setChaosEvent(null);
+                      setIsMitigated(false);
+                      setChaosLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ✅ System Restored: All failure modes cleared, cluster healthy.`]);
+                      toast.success("Chaos event cleared!");
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800 shadow"
+                  >
+                    <RotateCcw size={14} /> Reset Cluster
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Chaos Injection Buttons */}
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">1. Select Failure Injection Vector:</h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    id: "redis_crash",
+                    title: "Kill Redis Cluster",
+                    desc: "Simulates sudden in-memory node failure triggering Cache Stampede against DB.",
+                    severity: "CRITICAL",
+                    color: "border-rose-200 bg-rose-50/60 hover:border-rose-400 text-rose-900"
+                  },
+                  {
+                    id: "db_sever",
+                    title: "Sever DB Replication",
+                    desc: "Simulates network split between primary writer and read replica nodes.",
+                    severity: "HIGH",
+                    color: "border-amber-200 bg-amber-50/60 hover:border-amber-400 text-amber-900"
+                  },
+                  {
+                    id: "partition",
+                    title: "500ms Network Partition",
+                    desc: "Injects cross-region WAN packet loss and latency spikes across microservices.",
+                    severity: "HIGH",
+                    color: "border-purple-200 bg-purple-50/60 hover:border-purple-400 text-purple-900"
+                  },
+                  {
+                    id: "oom",
+                    title: "Pod Memory Leak (OOM)",
+                    desc: "Simulates memory leak causing Kubernetes pods to crash in CrashLoopBackOff.",
+                    severity: "MEDIUM",
+                    color: "border-sky-200 bg-sky-50/60 hover:border-sky-400 text-sky-900"
+                  }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setChaosEvent(item.id);
+                      setIsMitigated(false);
+                      setChaosLogs((prev) => [
+                        ...prev,
+                        `[${new Date().toLocaleTimeString()}] 💥 CHAOS INJECTED: ${item.title}. Blast radius expanding...`
+                      ]);
+                      toast.error(`Chaos Injected: ${item.title}!`);
+                    }}
+                    className={`rounded-2xl border p-4 text-left transition hover:scale-[1.02] shadow-sm ${item.color} ${
+                      chaosEvent === item.id ? "ring-2 ring-rose-500 shadow-md font-bold" : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-extrabold text-sm">{item.title}</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/80 border">{item.severity}</span>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed opacity-80">{item.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Blast Radius Display */}
+            {chaosEvent && (
+              <div className="rounded-2xl border border-rose-300 bg-slate-950 p-6 text-white space-y-4 animate-in fade-in">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="h-3 w-3 rounded-full bg-rose-500 animate-ping" />
+                    <h4 className="font-extrabold text-base text-rose-400">
+                      ACTIVE OUTAGE: {chaosEvent.toUpperCase()}
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-mono">
+                    <span className="text-slate-400">P99 Latency: <strong className="text-rose-400">{isMitigated ? "14ms" : "1,450ms"}</strong></span>
+                    <span className="text-slate-400">Error Rate: <strong className="text-rose-400">{isMitigated ? "0.01%" : "38.2%"}</strong></span>
+                    <span className="text-slate-400">Health: <strong className={isMitigated ? "text-emerald-400" : "text-rose-500"}>{isMitigated ? "MITIGATED" : "DEGRADED"}</strong></span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs text-slate-300 font-mono">
+                  {chaosEvent === "redis_crash" && (
+                    <p className="text-rose-300">
+                      ⚠️ Cache Stampede detected! 100% of read traffic ({effectiveQps.toLocaleString()} QPS) bypassed cache and slammed database thread pool. Database CPU at 99%.
+                    </p>
+                  )}
+                  {chaosEvent === "db_sever" && (
+                    <p className="text-amber-300">
+                      ⚠️ Primary-Replica heartbeat severed! Read queries routed to replica are 14,200ms behind master. Stale data served to clients.
+                    </p>
+                  )}
+                  {chaosEvent === "partition" && (
+                    <p className="text-purple-300">
+                      ⚠️ Cross-datacenter link dropped. Raft quorum election triggered. Non-quorum partition rejecting write requests with HTTP 503.
+                    </p>
+                  )}
+                  {chaosEvent === "oom" && (
+                    <p className="text-sky-300">
+                      ⚠️ Node memory exhausted. Linux OOM-Killer terminated container process. Pod entered CrashLoopBackOff state.
+                    </p>
+                  )}
+                </div>
+
+                {/* Mitigation Playbook Action */}
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+                  <span className="text-xs text-slate-400 font-semibold">Automated Engineering Playbook:</span>
+                  {!isMitigated ? (
+                    <button
+                      onClick={() => {
+                        setIsMitigated(true);
+                        setChaosLogs((prev) => [
+                          ...prev,
+                          `[${new Date().toLocaleTimeString()}] 🛡️ PLAYBOOK EXECUTED: Automated self-healing mitigation activated. P99 restored.`
+                        ]);
+                        toast.success("Self-healing playbook executed! Service restored.");
+                      }}
+                      className="flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-bold text-white shadow-md transition"
+                    >
+                      <ShieldCheck size={14} />
+                      {chaosEvent === "redis_crash" && "Execute: Enable Mutex Lock & Warm Cache"}
+                      {chaosEvent === "db_sever" && "Execute: Promote Standby Replica to Primary"}
+                      {chaosEvent === "partition" && "Execute: Trip Circuit Breaker & Fallback Stale"}
+                      {chaosEvent === "oom" && "Execute: Scale Pod Limits & Enable Heap GC Dump"}
+                    </button>
+                  ) : (
+                    <span className="badge bg-emerald-950 text-emerald-300 border border-emerald-700 font-mono text-xs flex items-center gap-1.5">
+                      <Check size={14} /> Mitigated & Self-Healed Successfully
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Telemetry Console Log */}
+            {chaosLogs.length > 0 && (
+              <div className="rounded-2xl border border-slate-200 bg-slate-900 p-4 text-xs font-mono text-slate-300 space-y-1.5 max-h-48 overflow-y-auto">
+                <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Live Incident Command Log:</p>
+                {chaosLogs.map((log, idx) => (
+                  <p key={idx} className="leading-relaxed">{log}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* CAP THEOREM & PACELC MATRIX */}
+      {activeTab === "cap" && (
+        <div className="space-y-6">
+          <div className="card p-6 sm:p-8 space-y-6">
+            <div className="border-b border-slate-100 pb-5">
+              <span className="badge bg-indigo-50 text-indigo-700 font-bold flex items-center gap-1.5">
+                <Compass size={14} /> Distributed Consensus Theory
+              </span>
+              <h2 className="mt-2 text-2xl font-black text-slate-900">CAP Theorem & PACELC Interactive Decision Matrix</h2>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500">
+                Eric Brewer's CAP Theorem proves a distributed data store can guarantee at most 2 out of 3: Consistency (C), Availability (A), and Partition Tolerance (P). In real networks with latency, PACELC extends this trade-off during normal operations.
+              </p>
+            </div>
+
+            {/* Workload Scenario Buttons */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-3">
+                Select Production Business Workload:
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { id: "banking", title: "Core Banking Ledger", profile: "CP System (Strict Consistency)", db: "CockroachDB / Spanner" },
+                  { id: "social", title: "Social Media Like Stream", profile: "AP System (Eventual Consistency)", db: "Cassandra / DynamoDB" },
+                  { id: "collab", title: "Collaborative Doc Editor", profile: "CRDT / Hybrid AP", db: "Redis + Yjs WebSocket" },
+                  { id: "ecommerce", title: "Flash Sale Inventory", profile: "CP with Distributed Lock", db: "Redis Redlock + Postgres" }
+                ].map((w) => (
+                  <button
+                    key={w.id}
+                    onClick={() => setCapScenario(w.id)}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      capScenario === w.id
+                        ? "border-brand-500 bg-brand-50/50 shadow-md ring-2 ring-brand-500/20"
+                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    <p className="font-extrabold text-sm text-slate-900">{w.title}</p>
+                    <p className="text-xs text-brand-600 font-semibold mt-1">{w.profile}</p>
+                    <p className="text-[10px] text-slate-400 mt-2">Recommended: {w.db}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* CAP Analysis Deep Dive Card */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <h3 className="font-bold text-base text-slate-900">
+                  Architectural Evaluation: {capScenario === "banking" && "Core Banking & Financial Ledger"}
+                  {capScenario === "social" && "Social Media Engagement & Like Counter"}
+                  {capScenario === "collab" && "Real-Time Collaborative Whiteboard / Document"}
+                  {capScenario === "ecommerce" && "E-Commerce Limited Flash Inventory"}
+                </h3>
+                <span className="badge bg-purple-100 text-purple-800 font-bold font-mono">
+                  {capScenario === "banking" && "Strict CP · Linearizable Reads"}
+                  {capScenario === "social" && "High-Availability AP · CRDT Counters"}
+                  {capScenario === "collab" && "PACELC (PA/EL) · Eventual Merging"}
+                  {capScenario === "ecommerce" && "Strict CP · Two-Phase Commit / Sagas"}
+                </span>
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                {capScenario === "banking" &&
+                  "In financial transactions, money cannot be duplicated or spent twice. If a network partition occurs between datacenter East and West, the system MUST reject writes rather than risk inconsistent balances. Uses Paxos/Raft consensus with synchronized atomic clocks (TrueTime API) to ensure serializability."}
+                {capScenario === "social" &&
+                  "If a user likes a post, it does not matter if a friend sees 1,042 likes while another sees 1,043 for a few seconds. The priority is 99.999% availability: likes must never fail. Writes are acknowledged immediately to local quorum and replicated asynchronously using Conflict-Free Replicated Data Types (PN-Counters)."}
+                {capScenario === "collab" &&
+                  "Users must be able to type offline without network lag. When network recovers, changes are merged deterministically using Operational Transformation (OT) or State-based CRDTs without central lock contention."}
+                {capScenario === "ecommerce" &&
+                  "If 100,000 customers try to purchase 100 available concert tickets, overselling results in legal liability and brand damage. The system utilizes distributed mutexes (Redis Redlock / ZooKeeper) and pessimistic row-level locking to guarantee zero inventory oversell."}
+              </p>
+
+              {/* Database Comparison Table */}
+              <div className="overflow-x-auto pt-2">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-500">
+                      <th className="py-2.5 font-bold">Database Engine</th>
+                      <th className="py-2.5 font-bold">CAP Classification</th>
+                      <th className="py-2.5 font-bold">PACELC Profile</th>
+                      <th className="py-2.5 font-bold">Optimal Production Use Case</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    <tr className="hover:bg-white transition">
+                      <td className="py-2 font-bold text-slate-900">Google Cloud Spanner</td>
+                      <td><span className="badge bg-blue-50 text-blue-700 font-bold">CP (Consistent)</span></td>
+                      <td className="font-mono text-slate-600">PC / EC</td>
+                      <td className="text-slate-600">Global financial transactions & multi-region inventory</td>
+                    </tr>
+                    <tr className="hover:bg-white transition">
+                      <td className="py-2 font-bold text-slate-900">Apache Cassandra / ScyllaDB</td>
+                      <td><span className="badge bg-emerald-50 text-emerald-700 font-bold">AP (Available)</span></td>
+                      <td className="font-mono text-slate-600">PA / EL</td>
+                      <td className="text-slate-600">High-write IoT telemetry, message inboxes & time-series</td>
+                    </tr>
+                    <tr className="hover:bg-white transition">
+                      <td className="py-2 font-bold text-slate-900">PostgreSQL (Single Master)</td>
+                      <td><span className="badge bg-purple-50 text-purple-700 font-bold">CA (LAN only)</span></td>
+                      <td className="font-mono text-slate-600">PC / EC</td>
+                      <td className="text-slate-600">Relational business applications with strict ACID guarantees</td>
+                    </tr>
+                    <tr className="hover:bg-white transition">
+                      <td className="py-2 font-bold text-slate-900">Amazon DynamoDB</td>
+                      <td><span className="badge bg-amber-50 text-amber-700 font-bold">Configurable (AP/CP)</span></td>
+                      <td className="font-mono text-slate-600">PA / EL (Default)</td>
+                      <td className="text-slate-600">Serverless microservices with single-digit millisecond scale</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       )}

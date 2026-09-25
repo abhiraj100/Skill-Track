@@ -199,7 +199,7 @@ export default function Dashboard() {
               </div>
               <h3 className="mt-4 font-bold text-slate-900">System Design Arena</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Interactive architecture canvas, real case studies (TinyURL, Netflix), and QPS capacity calculator.
+                Chaos Monkey fault injection, CAP/PACELC matrix, Uber/Twitter case studies, and QPS capacity calculator.
               </p>
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-violet-600">
@@ -251,9 +251,9 @@ export default function Dashboard() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition group-hover:bg-sky-600 group-hover:text-white">
                 <Code2 size={20} />
               </div>
-              <h3 className="mt-4 font-bold text-slate-900">Code Lab & Algorithms</h3>
+              <h3 className="mt-4 font-bold text-slate-900">Code Lab & Big-O Engine</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                In-browser algorithm playground with live execution, custom test runner, and hints.
+                Static AST Big-O complexity radar, FAANG pattern blueprints, memory profiler, and custom parameter runner.
               </p>
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-sky-600">
