@@ -66,6 +66,35 @@ const interviewQuestionBank = {
       idealAnswer: "Use non-root container users, minimal base images (Alpine/Distroless), scan CVEs with Trivy, inject secrets via vault/k8s secrets, enforce NetworkPolicies, and apply resource limits."
     }
   ],
+  "System Design & Distributed Systems Architect": [
+    {
+      question: "How would you design a distributed ID generator (like Twitter Snowflake) that guarantees 64-bit integer IDs, K-sorted ordering, and 100,000+ IDs per second per node without central coordination?",
+      topic: "Distributed Algorithms & ID Generation",
+      idealAnswer: "Allocate bits: 1 sign bit (unused), 41 bits for epoch timestamp (gives ~69 years), 10 bits for datacenter/machine ID (1024 nodes), and 12 bits for sequence number (4096 IDs per millisecond per node). Nodes run independently without inter-node consensus locks."
+    },
+    {
+      question: "Explain the Trade-offs between Eventual Consistency, Linearizability, and Strong Eventual Consistency (CRDTs) when designing high-concurrency real-time collaborative document systems.",
+      topic: "Consistency Models & Consensus",
+      idealAnswer: "Linearizability requires consensus (Raft/Paxos) on every mutation, sacrificing availability during network partitions. Eventual consistency allows temporary divergence. Conflict-Free Replicated Data Types (CRDTs) or Operational Transformation (OT) ensure strong eventual consistency where concurrent replica edits mathematically commute into an identical state without locking."
+    },
+    {
+      question: "How do you mitigate Cache Stampedes (Thundering Herd) when a high-traffic cache key expires simultaneously for 50,000 concurrent client requests?",
+      topic: "Distributed Caching & High Scale",
+      idealAnswer: "Techniques: 1) Mutex Locking: only the first cache-miss acquires a distributed lock (e.g. Redlock) to query the DB while other threads sleep or await; 2) Probabilistic Early Expiration (XFetch algorithm): recomputes the cache item asynchronously in the background before the actual hard TTL lapses; 3) Stale-While-Revalidate background hydration."
+    }
+  ],
+  "Enterprise Security & DevSecOps Specialist": [
+    {
+      question: "Walk through Zero Trust Architecture principles and how you implement mutual TLS (mTLS) and SPIFFE/SPIRE workload identities in Kubernetes service meshes.",
+      topic: "Zero Trust & Service Mesh Security",
+      idealAnswer: "Zero Trust assumes network breach by default: 'Never trust, always verify'. SPIRE acts as a control plane issuing short-lived X.509 SVID certificates to workloads. Envoy sidecars validate mTLS peer identities cryptographically on every East-West RPC, terminating unauthenticated traffic at the pod boundary."
+    },
+    {
+      question: "How do you protect OAuth2/OIDC implementations against Authorization Code interception, CSRF in callback endpoints, and JWT 'alg: none' spoofing attacks?",
+      topic: "Authentication & Cryptographic Security",
+      idealAnswer: "Enforce PKCE (Proof Key for Code Exchange) using a high-entropy cryptographically random code_verifier and code_challenge (SHA-256). Bind state parameters in session storage to thwart CSRF. Explicitly whitelist permitted asymmetric JWT signing algorithms (e.g. RS256/ES256) on resource servers and reject tokens with 'alg: none' or mismatched keys."
+    }
+  ],
   "Behavioral & Leadership": [
     {
       question: "Tell me about a time when you disagreed with a teammate or product manager on a technical architectural decision. How did you resolve it?",
