@@ -8,7 +8,14 @@ const interviewQuestionSchema = new mongoose.Schema({
   feedback: { type: String, default: "" },
   strengths: [{ type: String }],
   improvements: [{ type: String }],
-  idealAnswer: { type: String, default: "" }
+  idealAnswer: { type: String, default: "" },
+  starBreakdown: {
+    situationScore: { type: Number, default: 75 },
+    taskScore: { type: Number, default: 75 },
+    actionScore: { type: Number, default: 75 },
+    resultScore: { type: Number, default: 70 },
+    starSummary: { type: String, default: "" }
+  }
 });
 
 const interviewSessionSchema = new mongoose.Schema({

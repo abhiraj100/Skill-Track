@@ -197,7 +197,14 @@ export const evaluateInterviewAnswer = async (req, res, next) => {
         "Include quantifiable metrics (e.g., latency reduction, memory footprints)",
         "Mention real-world edge cases or trade-offs"
       ],
-      idealAnswer: `An exemplary answer covers foundational mechanics of ${topic}, trade-offs of chosen patterns, practical debugging tools, and how it directly affects end-user stability.`
+      idealAnswer: `An exemplary answer covers foundational mechanics of ${topic}, trade-offs of chosen patterns, practical debugging tools, and how it directly affects end-user stability.`,
+      starBreakdown: {
+        situationScore: Math.min(96, Math.max(60, baseScore + 3)),
+        taskScore: Math.min(94, Math.max(55, baseScore + 1)),
+        actionScore: Math.min(92, Math.max(50, baseScore - 2)),
+        resultScore: Math.min(90, Math.max(45, baseScore - 5)),
+        starSummary: "Effective articulation of Situation and Task. Quantify Results with precise production metrics to achieve top percentile ratings."
+      }
     });
 
     const prompt = `You are a Principal Tech Interviewer evaluating a candidate's answer for a ${role} position.
@@ -214,7 +221,14 @@ Evaluate their response and return ONLY a JSON object with:
   "feedback": "2-3 sentences concise critique",
   "strengths": ["bullet 1", "bullet 2"],
   "improvements": ["bullet 1", "bullet 2"],
-  "idealAnswer": "concise benchmark answer"
+  "idealAnswer": "concise benchmark answer",
+  "starBreakdown": {
+    "situationScore": number (0-100),
+    "taskScore": number (0-100),
+    "actionScore": number (0-100),
+    "resultScore": number (0-100),
+    "starSummary": "1-2 sentences evaluation of their Situation, Task, Action, and Result framing"
+  }
 }`;
 
     const result = await runAI(prompt, fallback);
