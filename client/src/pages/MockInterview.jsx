@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Award,
+  Boxes,
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
@@ -12,6 +13,7 @@ import {
   Play,
   RotateCcw,
   Send,
+  ShieldCheck,
   Sparkles,
   TrendingUp,
   UserCheck
@@ -25,6 +27,8 @@ const ROLES = [
   { id: "Frontend Developer", label: "Frontend React", desc: "Hooks, VDOM, Performance & State Management", icon: Sparkles },
   { id: "Backend Developer", label: "Backend Node.js", desc: "Event loop, REST APIs, Security & DBs", icon: TrendingUp },
   { id: "DevOps & Cloud Engineer", label: "DevOps & Cloud", desc: "CI/CD, Docker, Kubernetes & Reliability", icon: Award },
+  { id: "System Design & Distributed Systems Architect", label: "System Design & Scale", desc: "Snowflake IDs, Consensus, Caching & Partitioning", icon: Boxes },
+  { id: "Enterprise Security & DevSecOps Specialist", label: "Security & DevSecOps", desc: "Zero Trust, mTLS, SPIFFE/SPIRE & OAuth2 PKCE", icon: ShieldCheck },
   { id: "Behavioral & Leadership", label: "Behavioral / STAR", desc: "Conflict, delivery, ownership & communication", icon: UserCheck }
 ];
 

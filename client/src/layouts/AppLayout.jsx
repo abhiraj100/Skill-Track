@@ -31,6 +31,7 @@ import {
   Palette,
   Radio,
   Rocket,
+  Server,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -116,7 +117,7 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester"].some((p) =>
@@ -197,6 +198,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">System Design Arena</p>
                       <p className="text-[11px] text-slate-500">Live traffic simulation & QPS</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/scale-hub" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Server size={17} className="mt-0.5 text-sky-500" />
+                    <div>
+                      <p className="text-xs font-bold">Enterprise Scale & SRE Hub</p>
+                      <p className="text-[11px] text-slate-500">OpenTelemetry, Hashing & SRE Runbook</p>
                     </div>
                   </NavLink>
                   <NavLink to="/query-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -644,6 +652,9 @@ export default function AppLayout() {
               </NavLink>
               <NavLink to="/system-design" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Boxes size={17} /> System Design Arena
+              </NavLink>
+              <NavLink to="/scale-hub" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Server size={17} className="text-sky-500" /> Enterprise Scale & SRE Hub
               </NavLink>
               <NavLink to="/query-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Database size={17} /> SQL & Mongo Query Lab

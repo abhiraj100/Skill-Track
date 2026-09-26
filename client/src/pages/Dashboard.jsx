@@ -25,6 +25,7 @@ import {
   Palette,
   Radio,
   Rocket,
+  Server,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -204,6 +205,24 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-violet-600">
               Open Studio <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/scale-hub"
+            className="card group flex flex-col justify-between overflow-hidden border-sky-100 p-5 transition hover:-translate-y-1 hover:border-sky-300 hover:shadow-lg"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 transition group-hover:bg-sky-600 group-hover:text-white">
+                <Server size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900">Enterprise Scale & SRE Hub</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                OpenTelemetry request waterfalls, consistent hash cluster rings, Kafka lag, and SRE incident runbooks.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-sky-600">
+              Launch Command Center <ArrowRight size={14} />
             </div>
           </Link>
 
