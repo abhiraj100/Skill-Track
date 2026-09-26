@@ -3,30 +3,41 @@ import {
   Activity,
   AlertOctagon,
   AlertTriangle,
+  ArrowDown,
   ArrowRight,
   BarChart3,
   CheckCircle2,
   ChevronRight,
   Clock,
+  Copy,
   Cpu,
   Database,
+  Download,
   Eye,
+  FileText,
+  Filter,
   Flame,
   GitBranch,
   Globe,
   HardDrive,
   Layers,
+  Lock,
   Network,
+  Pause,
   Play,
   RefreshCw,
   RotateCcw,
+  Search,
   Server,
+  Share2,
   ShieldAlert,
   ShieldCheck,
   Sliders,
   Sparkles,
   Terminal,
   TrendingUp,
+  Unlock,
+  Wifi,
   Workflow,
   XCircle,
   Zap
@@ -84,10 +95,10 @@ const TRACE_SCENARIOS = [
 
 // Consistent Hashing Nodes
 const INITIAL_NODES = [
-  { id: "node-1", name: "Cache-Node-A (us-east-1a)", vnodes: 50, memoryUsedMb: 3420, capacityMb: 8192, status: "Healthy" },
-  { id: "node-2", name: "Cache-Node-B (us-east-1b)", vnodes: 50, memoryUsedMb: 3810, capacityMb: 8192, status: "Healthy" },
-  { id: "node-3", name: "Cache-Node-C (us-east-1c)", vnodes: 50, memoryUsedMb: 3650, capacityMb: 8192, status: "Healthy" },
-  { id: "node-4", name: "Cache-Node-D (us-east-1d)", vnodes: 50, memoryUsedMb: 3510, capacityMb: 8192, status: "Healthy" }
+  { id: "node-1", name: "Cache-Node-A", az: "us-east-1a", color: "#38bdf8", vnodes: 50, memoryUsedMb: 3420, capacityMb: 8192, status: "Healthy" },
+  { id: "node-2", name: "Cache-Node-B", az: "us-east-1b", color: "#818cf8", vnodes: 50, memoryUsedMb: 3810, capacityMb: 8192, status: "Healthy" },
+  { id: "node-3", name: "Cache-Node-C", az: "us-east-1c", color: "#34d399", vnodes: 50, memoryUsedMb: 3650, capacityMb: 8192, status: "Healthy" },
+  { id: "node-4", name: "Cache-Node-D", az: "us-east-1d", color: "#fbbf24", vnodes: 50, memoryUsedMb: 3510, capacityMb: 8192, status: "Healthy" }
 ];
 
 // SRE Disaster Recovery Scenarios
@@ -96,6 +107,7 @@ const SRE_INCIDENTS = [
     id: "thread-exhaustion",
     title: "Cascading Failure: Thread Pool Exhaustion on Gateway",
     severity: "SEV-1 (Outage Risk)",
+    service: "Envoy Gateway / Order Orchestrator",
     symptom: "HTTP 504 Gateway Timeouts spike from 0.01% to 14.8%. Tomcat worker thread count reaches 200/200 max cap.",
     rootCause: "A slow external downstream analytics endpoint blocks worker threads synchronously without connection timeout fencing.",
     mitigationSteps: [
@@ -103,12 +115,24 @@ const SRE_INCIDENTS = [
       { step: 2, action: "Isolate downstream analytics calls into dedicated non-blocking thread pool", completed: false },
       { step: 3, action: "Scale Gateway Pods from 4 to 12 via Horizontal Pod Autoscaler (HPA)", completed: false },
       { step: 4, action: "Verify P99 latency recovery and drain hung sockets", completed: false }
-    ]
+    ],
+    postMortem: {
+      detectionTime: "14:22:10 UTC",
+      mitigationTime: "14:25:52 UTC",
+      mttr: "3m 42s",
+      impactedUsers: "14,280 checkout requests affected",
+      actionItems: [
+        "Enforce strict 200ms connect/read timeout on all 3rd-party vendor SDKs",
+        "Introduce bulkheading to isolate payment checkout threads from telemetry",
+        "Add Prometheus alert rule for Tomcat busy worker thread ratio > 85%"
+      ]
+    }
   },
   {
     id: "split-brain",
     title: "Split-Brain Risk in Etcd / Raft Consensus Quorum",
     severity: "SEV-1 (Data Integrity)",
+    service: "Etcd Cluster / Kubernetes Control Plane",
     symptom: "Cross-AZ network link between us-east-1a and us-east-1b experiences 800ms packet drops. Two nodes attempt leader election simultaneously.",
     rootCause: "Network partition divides 5-node consensus cluster into 2-node and 3-node components. Minority partition must not accept writes.",
     mitigationSteps: [
@@ -116,12 +140,24 @@ const SRE_INCIDENTS = [
       { step: 2, action: "Enforce leader fencing token and reject stale generation term numbers", completed: false },
       { step: 3, action: "Re-route client writes strictly to Majority partition (3 nodes)", completed: false },
       { step: 4, action: "Heal network route and trigger log catch-up replication", completed: false }
-    ]
+    ],
+    postMortem: {
+      detectionTime: "08:14:02 UTC",
+      mitigationTime: "08:18:17 UTC",
+      mttr: "4m 15s",
+      impactedUsers: "0 corrupted state entries (Quorum strictly protected)",
+      actionItems: [
+        "Audit AWS DirectConnect cross-AZ latency jitter metrics",
+        "Enable Raft Pre-Vote protocol to suppress disruptive election campaigns",
+        "Deploy redundant BGP mesh paths between us-east-1 availability zones"
+      ]
+    }
   },
   {
     id: "hot-shard",
     title: "Hot Partition Key in Distributed NoSQL Database",
     severity: "SEV-2 (Degradation)",
+    service: "MongoDB Sharded Cluster / DynamoDB",
     symptom: "Shard 4 CPU spikes to 98% while Shards 1, 2, 3 remain idle at 12%. Write throughput throttled with HTTP 429.",
     rootCause: "High-volume celebrity tenant with 25M followers partitioned solely on tenant_id, overwhelming a single shard node.",
     mitigationSteps: [
@@ -129,22 +165,51 @@ const SRE_INCIDENTS = [
       { step: 2, action: "Deploy Write-Behind Cache (Redis cluster) to absorb celebrity burst spikes", completed: false },
       { step: 3, action: "Scatter-Gather read fan-out across salted partitions in parallel", completed: false },
       { step: 4, action: "Validate even CPU load distribution across all 4 shards (<25% variance)", completed: false }
-    ]
+    ],
+    postMortem: {
+      detectionTime: "19:05:40 UTC",
+      mitigationTime: "19:08:30 UTC",
+      mttr: "2m 50s",
+      impactedUsers: "2,400 write mutations throttled with HTTP 429",
+      actionItems: [
+        "Enforce compound sharding rule combining tenant_id and timestamp bucket",
+        "Set up adaptive throttling on API Gateway per individual tenant tier",
+        "Implement automatic shard heat-map telemetry dashboard"
+      ]
+    }
   }
 ];
 
 export default function EnterpriseScaleHub() {
-  const [activeTab, setActiveTab] = useState("telemetry"); // 'telemetry' | 'hashing' | 'kafkaLag' | 'dbSplit' | 'sre'
+  const [activeTab, setActiveTab] = useState("telemetry"); // 'telemetry' | 'hashing' | 'rateLimit' | 'mesh' | 'kafkaLag' | 'dbSplit' | 'sre'
 
   // Distributed Tracing State
   const [selectedTrace, setSelectedTrace] = useState(TRACE_SCENARIOS[0]);
   const [selectedSpan, setSelectedSpan] = useState(TRACE_SCENARIOS[0].spans[0]);
+  const [isSimulatingTrace, setIsSimulatingTrace] = useState(false);
+  const [activePlaybackSpanId, setActivePlaybackSpanId] = useState(null);
 
   // Consistent Hashing State
   const [nodes, setNodes] = useState(INITIAL_NODES);
   const [vnodesPerNode, setVnodesPerNode] = useState(50);
   const [sampleKey, setSampleKey] = useState("user_session_token_948a7b1c");
   const [keyLookupResult, setKeyLookupResult] = useState(null);
+
+  // Rate Limiter Simulator State
+  const [rateLimitAlgo, setRateLimitAlgo] = useState("token-bucket"); // 'token-bucket' | 'sliding-window' | 'leaky-bucket'
+  const [bucketCapacity, setBucketCapacity] = useState(30);
+  const [refillRate, setRefillRate] = useState(10); // tokens per sec
+  const [tokensRemaining, setTokensRemaining] = useState(30);
+  const [rateLimitStats, setRateLimitStats] = useState({ allowed: 142, rejected: 12, lastResult: null });
+  const [rateLimitLog, setRateLimitLog] = useState([]);
+
+  // Service Mesh Circuit Breaker State
+  const [circuitState, setCircuitState] = useState("CLOSED"); // 'CLOSED' | 'OPEN' | 'HALF_OPEN'
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const [injectError, setInjectError] = useState(false);
+  const [meshLatency, setMeshLatency] = useState(14);
+  const [meshRequestsTotal, setMeshRequestsTotal] = useState(250);
+  const [meshFallbackTriggered, setMeshFallbackTriggered] = useState(0);
 
   // Kafka Lag State
   const [kafkaLag, setKafkaLag] = useState([
@@ -157,15 +222,15 @@ export default function EnterpriseScaleHub() {
 
   // DB Read/Write Split State
   const [replicationLagMs, setReplicationLagMs] = useState(45);
-  const [stickySessionWindow, setStickySessionWindow] = useState(true);
-  const [readSplitRatio, setReadSplitRatio] = useState(85); // 85% to replicas, 15% to primary
+  const [readSplitRatio, setReadSplitRatio] = useState(85);
 
   // SRE Incident State
   const [activeIncident, setActiveIncident] = useState(SRE_INCIDENTS[0]);
   const [incidentSteps, setIncidentSteps] = useState(SRE_INCIDENTS[0].mitigationSteps);
   const [incidentResolved, setIncidentResolved] = useState(false);
+  const [showPostMortemModal, setShowPostMortemModal] = useState(false);
 
-  // Run consistent hash key placement calculation
+  // Consistent hash key placement calculation
   const computeKeyPlacement = (keyStr, nodeList) => {
     let hash = 0;
     for (let i = 0; i < keyStr.length; i++) {
@@ -177,7 +242,8 @@ export default function EnterpriseScaleHub() {
     return {
       hash: unsignedHash,
       targetNode: targetNode.name,
-      ringPosition: ((unsignedHash % 360) + 360) % 360
+      ringPosition: ((unsignedHash % 360) + 360) % 360,
+      targetNodeColor: targetNode.color || "#38bdf8"
     };
   };
 
@@ -185,14 +251,127 @@ export default function EnterpriseScaleHub() {
     setKeyLookupResult(computeKeyPlacement(sampleKey, nodes));
   }, [sampleKey, nodes]);
 
+  // Token Refill Interval for Rate Limiter
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTokensRemaining((curr) => Math.min(bucketCapacity, curr + refillRate / 2));
+    }, 500);
+    return () => clearInterval(interval);
+  }, [bucketCapacity, refillRate]);
+
+  // Send request through rate limiter
+  const sendRateLimitedRequest = (burstCount = 1) => {
+    let newAllowed = 0;
+    let newRejected = 0;
+    const newLogs = [];
+
+    let currentTokens = tokensRemaining;
+    for (let i = 0; i < burstCount; i++) {
+      if (currentTokens >= 1) {
+        currentTokens -= 1;
+        newAllowed++;
+        newLogs.unshift({
+          id: Math.random().toString(36).substring(7),
+          time: new Date().toLocaleTimeString(),
+          status: 200,
+          msg: "HTTP 200 OK — Token allocated from bucket"
+        });
+      } else {
+        newRejected++;
+        newLogs.unshift({
+          id: Math.random().toString(36).substring(7),
+          time: new Date().toLocaleTimeString(),
+          status: 429,
+          msg: `HTTP 429 Too Many Requests — Retry-After: ${(1 / refillRate).toFixed(1)}s`
+        });
+      }
+    }
+
+    setTokensRemaining(currentTokens);
+    setRateLimitStats((prev) => ({
+      allowed: prev.allowed + newAllowed,
+      rejected: prev.rejected + newRejected,
+      lastResult: newRejected > 0 ? "429 Throttled" : "200 Allowed"
+    }));
+    setRateLimitLog((prev) => [...newLogs, ...prev].slice(0, 15));
+
+    if (newRejected > 0) {
+      toast.error(`${newRejected} request(s) rate-limited (HTTP 429)`, { id: "rate-limit-toast" });
+    } else {
+      toast.success(`${newAllowed} request(s) passed successfully!`, { id: "rate-limit-toast" });
+    }
+  };
+
+  // Simulate Service Mesh Request with Circuit Breaker
+  const sendMeshCall = () => {
+    setMeshRequestsTotal((prev) => prev + 1);
+
+    if (circuitState === "OPEN") {
+      setMeshFallbackTriggered((prev) => prev + 1);
+      setMeshLatency(0.4);
+      toast("Circuit is OPEN. Fast-failing to fallback response (0.4ms)!", { icon: "🛡️" });
+      return;
+    }
+
+    if (injectError) {
+      const newFailures = consecutiveFailures + 1;
+      setConsecutiveFailures(newFailures);
+      setMeshLatency(280);
+
+      if (newFailures >= 4) {
+        setCircuitState("OPEN");
+        toast.error("🚨 4 consecutive failures! Circuit Breaker TRIPPED to OPEN state!");
+        setTimeout(() => {
+          setCircuitState("HALF_OPEN");
+          toast("Circuit entered HALF-OPEN state (probing downstream recovery)...", { icon: "🟡" });
+        }, 5000);
+      } else {
+        toast.error(`Downstream timeout! Failures: ${newFailures}/4`);
+      }
+    } else {
+      setConsecutiveFailures(0);
+      setMeshLatency(Math.round(12 + Math.random() * 8));
+      if (circuitState === "HALF_OPEN") {
+        setCircuitState("CLOSED");
+        toast.success("Downstream verified healthy! Circuit Breaker reset to CLOSED.");
+      } else {
+        toast.success("gRPC mTLS call passed via Envoy proxy!");
+      }
+    }
+  };
+
+  // Playback Trace Animation
+  const playTraceSimulation = () => {
+    if (isSimulatingTrace) return;
+    setIsSimulatingTrace(true);
+    toast.loading(`Simulating ${selectedTrace.name} execution flow...`, { id: "trace-sim" });
+
+    selectedTrace.spans.forEach((span, idx) => {
+      setTimeout(() => {
+        setActivePlaybackSpanId(span.id);
+        setSelectedSpan(span);
+        if (idx === selectedTrace.spans.length - 1) {
+          setTimeout(() => {
+            setIsSimulatingTrace(false);
+            setActivePlaybackSpanId(null);
+            toast.success(`Trace completed in ${selectedTrace.totalDuration}ms!`, { id: "trace-sim" });
+          }, 400);
+        }
+      }, idx * 350);
+    });
+  };
+
   const addCacheNode = () => {
     if (nodes.length >= 8) {
       return toast.error("Maximum 8 nodes in simulation cluster.");
     }
     const nextChar = String.fromCharCode(65 + nodes.length);
+    const colorPalette = ["#ec4899", "#8b5cf6", "#06b6d4", "#10b981"];
     const newNode = {
       id: `node-${nodes.length + 1}`,
-      name: `Cache-Node-${nextChar} (us-east-1${nextChar.toLowerCase()})`,
+      name: `Cache-Node-${nextChar}`,
+      az: `us-east-1${nextChar.toLowerCase()}`,
+      color: colorPalette[nodes.length % colorPalette.length],
       vnodes: vnodesPerNode,
       memoryUsedMb: Math.round(1800 + Math.random() * 1200),
       capacityMb: 8192,
@@ -234,7 +413,7 @@ export default function EnterpriseScaleHub() {
     const allDone = updated.every((s) => s.completed);
     if (allDone && !incidentResolved) {
       setIncidentResolved(true);
-      toast.success(`🎉 ${activeIncident.title} MITIGATED! MTTR: 3m 42s`);
+      toast.success(`🎉 ${activeIncident.title} MITIGATED! MTTR: ${activeIncident.postMortem.mttr}`);
     }
   };
 
@@ -242,6 +421,29 @@ export default function EnterpriseScaleHub() {
     setActiveIncident(inc);
     setIncidentSteps(inc.mitigationSteps.map((s) => ({ ...s, completed: false })));
     setIncidentResolved(false);
+  };
+
+  const copyPostMortemToClipboard = () => {
+    const text = `# SRE Incident Post-Mortem: ${activeIncident.title}
+**Severity:** ${activeIncident.severity}
+**Impacted Service:** ${activeIncident.service}
+**Detection Time:** ${activeIncident.postMortem.detectionTime}
+**Resolution Time:** ${activeIncident.postMortem.mitigationTime}
+**Mean Time to Resolution (MTTR):** ${activeIncident.postMortem.mttr}
+**Customer Impact:** ${activeIncident.postMortem.impactedUsers}
+
+---
+### 1. Root Cause Analysis (RCA)
+${activeIncident.rootCause}
+
+### 2. Mitigation Runbook Executed
+${incidentSteps.map((s) => `- [${s.completed ? "x" : " "}] Step ${s.step}: ${s.action}`).join("\n")}
+
+### 3. Action Items & Preventive Tasks
+${activeIncident.postMortem.actionItems.map((a, i) => `${i + 1}. ${a}`).join("\n")}
+`;
+    navigator.clipboard.writeText(text);
+    toast.success("Post-Mortem report copied to clipboard!");
   };
 
   const totalKafkaLagCount = useMemo(() => {
@@ -265,7 +467,7 @@ export default function EnterpriseScaleHub() {
               Distributed Systems Command Center
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-300">
-              Real-time OpenTelemetry distributed waterfall tracing, consistent hashing cluster rings, Kafka consumer group lag inspectors, database read-write split routers, and live SRE disaster recovery runbooks.
+              High-concurrency OpenTelemetry waterfall tracing, 360° circular consistent hashing ring, Redis token bucket traffic shaping, Envoy service mesh circuit breakers, and SRE incident runbooks.
             </p>
           </div>
 
@@ -309,7 +511,29 @@ export default function EnterpriseScaleHub() {
                 : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Layers size={14} /> Consistent Hashing Ring
+            <Layers size={14} /> Consistent Hashing 360° Ring
+          </button>
+
+          <button
+            onClick={() => setActiveTab("rateLimit")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "rateLimit"
+                ? "bg-sky-600 text-white shadow-lg shadow-sky-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Sliders size={14} /> Rate Limiter & Token Bucket
+          </button>
+
+          <button
+            onClick={() => setActiveTab("mesh")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "mesh"
+                ? "bg-sky-600 text-white shadow-lg shadow-sky-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Network size={14} /> Service Mesh Circuit Breaker
           </button>
 
           <button
@@ -320,7 +544,7 @@ export default function EnterpriseScaleHub() {
                 : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <Workflow size={14} /> Kafka Partition Lag Monitor
+            <Workflow size={14} /> Kafka Partition Lag
           </button>
 
           <button
@@ -362,23 +586,34 @@ export default function EnterpriseScaleHub() {
                   </p>
                 </div>
 
-                <div className="flex gap-1.5">
-                  {TRACE_SCENARIOS.map((sc) => (
-                    <button
-                      key={sc.id}
-                      onClick={() => {
-                        setSelectedTrace(sc);
-                        setSelectedSpan(sc.spans[0]);
-                      }}
-                      className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                        selectedTrace.id === sc.id
-                          ? "bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 ring-1 ring-sky-300 dark:ring-sky-700"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
-                      }`}
-                    >
-                      {sc.name.split(" ")[0]} {sc.id}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={playTraceSimulation}
+                    disabled={isSimulatingTrace}
+                    className="rounded-xl bg-sky-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md hover:bg-sky-500 transition flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <Play size={13} className={isSimulatingTrace ? "animate-spin" : ""} />
+                    {isSimulatingTrace ? "Simulating..." : "Play Live Trace"}
+                  </button>
+
+                  <div className="flex gap-1.5">
+                    {TRACE_SCENARIOS.map((sc) => (
+                      <button
+                        key={sc.id}
+                        onClick={() => {
+                          setSelectedTrace(sc);
+                          setSelectedSpan(sc.spans[0]);
+                        }}
+                        className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                          selectedTrace.id === sc.id
+                            ? "bg-sky-100 text-sky-800 dark:bg-sky-950/80 dark:text-sky-300 ring-1 ring-sky-300 dark:ring-sky-700"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+                        }`}
+                      >
+                        {sc.name.split(" ")[0]} {sc.id}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -402,13 +637,16 @@ export default function EnterpriseScaleHub() {
                   const leftPercent = (span.start / selectedTrace.totalDuration) * 100;
                   const widthPercent = Math.max((span.duration / selectedTrace.totalDuration) * 100, 3);
                   const isSelected = selectedSpan?.id === span.id;
+                  const isPlaying = activePlaybackSpanId === span.id;
 
                   return (
                     <div
                       key={span.id}
                       onClick={() => setSelectedSpan(span)}
                       className={`group cursor-pointer rounded-xl p-2.5 transition border ${
-                        isSelected
+                        isPlaying
+                          ? "border-amber-500 bg-amber-50 dark:bg-amber-950/40 ring-2 ring-amber-400 scale-[1.01]"
+                          : isSelected
                           ? "border-sky-500 bg-sky-50/60 dark:border-sky-500 dark:bg-sky-950/40 shadow-sm"
                           : "border-slate-100 hover:border-slate-300 bg-white dark:border-slate-800 dark:bg-slate-900/60"
                       }`}
@@ -431,7 +669,11 @@ export default function EnterpriseScaleHub() {
                       {/* Visual Timeline Bar */}
                       <div className="mt-2 h-2.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 transition-all duration-300"
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            isPlaying
+                              ? "bg-gradient-to-r from-amber-400 to-rose-500 animate-pulse"
+                              : "bg-gradient-to-r from-sky-500 to-indigo-600"
+                          }`}
                           style={{
                             marginLeft: `${leftPercent}%`,
                             width: `${widthPercent}%`
@@ -497,14 +739,14 @@ export default function EnterpriseScaleHub() {
         </div>
       )}
 
-      {/* TAB 2: CONSISTENT HASHING RING & REDIS CLUSTER */}
+      {/* TAB 2: CONSISTENT HASHING 360° RING VISUALIZER */}
       {activeTab === "hashing" && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Layers className="text-indigo-600" size={18} /> Consistent Hashing Distributed Ring Visualizer
+                  <Layers className="text-indigo-600" size={18} /> 360° Circular Consistent Hashing Ring
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Distributes keys across a 2³²-1 token ring using virtual nodes (vnodes) to prevent cache stampedes and minimize data migration when scaling nodes.
@@ -541,7 +783,10 @@ export default function EnterpriseScaleHub() {
               {keyLookupResult && (
                 <div className="flex items-center gap-2 text-xs font-mono">
                   <span className="text-slate-400">Target Node:</span>
-                  <span className="rounded bg-indigo-100 px-2.5 py-0.5 font-bold text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300">
+                  <span
+                    className="rounded px-2.5 py-0.5 font-bold text-white shadow-sm"
+                    style={{ backgroundColor: keyLookupResult.targetNodeColor }}
+                  >
                     {keyLookupResult.targetNode}
                   </span>
                   <span className="text-slate-400">Ring Degree: {keyLookupResult.ringPosition}°</span>
@@ -549,36 +794,117 @@ export default function EnterpriseScaleHub() {
               )}
             </div>
 
-            {/* Node Grid Cards */}
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {nodes.map((node) => {
-                const isTarget = keyLookupResult?.targetNode === node.name;
-                return (
-                  <div
-                    key={node.id}
-                    className={`rounded-2xl border p-4 transition ${
-                      isTarget
-                        ? "border-indigo-500 bg-indigo-50/70 dark:border-indigo-500 dark:bg-indigo-950/40 ring-1 ring-indigo-400"
-                        : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{node.name}</span>
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-                    <div className="mt-3 space-y-1.5 text-xs font-mono text-slate-600 dark:text-slate-400">
-                      <p>Virtual Nodes: <strong className="text-slate-800 dark:text-slate-200">{node.vnodes} vnodes</strong></p>
-                      <p>RAM Allocated: <strong className="text-slate-800 dark:text-slate-200">{node.memoryUsedMb} MB</strong> / {node.capacityMb} MB</p>
-                      <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div
-                          className="h-full bg-indigo-600 rounded-full"
-                          style={{ width: `${(node.memoryUsedMb / node.capacityMb) * 100}%` }}
-                        />
+            {/* Visual 360 Degree SVG Ring Canvas */}
+            <div className="grid gap-6 lg:grid-cols-[380px_1fr] items-center">
+              <div className="flex flex-col items-center justify-center p-4 bg-slate-950 rounded-2xl border border-slate-800 relative">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Live Token Ring (0° to 359°)</p>
+                <svg width="280" height="280" viewBox="0 0 360 360" className="overflow-visible">
+                  {/* Outer Ring */}
+                  <circle cx="180" cy="180" r="130" stroke="#334155" strokeWidth="4" fill="none" strokeDasharray="4 4" />
+
+                  {/* Render Node Segments & Badges */}
+                  {nodes.map((node, idx) => {
+                    const angle = (idx / nodes.length) * 2 * Math.PI;
+                    const x = 180 + 130 * Math.cos(angle);
+                    const y = 180 + 130 * Math.sin(angle);
+                    const isTarget = keyLookupResult?.targetNode === node.name;
+
+                    return (
+                      <g key={node.id}>
+                        {/* Glow on target node */}
+                        {isTarget && (
+                          <circle cx={x} cy={y} r="22" fill={node.color} opacity="0.3" className="animate-ping" />
+                        )}
+                        <circle cx={x} cy={y} r="16" fill={node.color} stroke="#0f172a" strokeWidth="3" />
+                        <text
+                          x={x}
+                          y={y + 4}
+                          textAnchor="middle"
+                          fill="#ffffff"
+                          fontSize="11"
+                          fontWeight="bold"
+                          fontFamily="monospace"
+                        >
+                          {String.fromCharCode(65 + idx)}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Target Key Indicator on Ring */}
+                  {keyLookupResult && (
+                    <g>
+                      {(() => {
+                        const rad = (keyLookupResult.ringPosition * Math.PI) / 180;
+                        const kx = 180 + 130 * Math.cos(rad);
+                        const ky = 180 + 130 * Math.sin(rad);
+                        return (
+                          <>
+                            <line x1="180" y1="180" x2={kx} y2={ky} stroke="#f43f5e" strokeWidth="2" strokeDasharray="3 3" />
+                            <circle cx={kx} cy={ky} r="7" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" />
+                            <text x={kx} y={ky - 12} textAnchor="middle" fill="#f43f5e" fontSize="10" fontWeight="bold">
+                              Key Target ({keyLookupResult.ringPosition}°)
+                            </text>
+                          </>
+                        );
+                      })()}
+                    </g>
+                  )}
+
+                  {/* Center Hub Indicator */}
+                  <circle cx="180" cy="180" r="32" fill="#1e293b" stroke="#475569" strokeWidth="2" />
+                  <text x="180" y="176" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">
+                    RING
+                  </text>
+                  <text x="180" y="190" textAnchor="middle" fill="#38bdf8" fontSize="9" fontFamily="monospace">
+                    2³²-1
+                  </text>
+                </svg>
+                <div className="mt-2 text-center text-[11px] text-slate-400">
+                  <span className="text-rose-400 font-bold">●</span> Key Hash Point &nbsp;|&nbsp;
+                  <span className="text-sky-400 font-bold">●</span> Clockwise Partition Assignment
+                </div>
+              </div>
+
+              {/* Node Grid Cards */}
+              <div className="grid gap-3 sm:grid-cols-2">
+                {nodes.map((node) => {
+                  const isTarget = keyLookupResult?.targetNode === node.name;
+                  return (
+                    <div
+                      key={node.id}
+                      className={`rounded-2xl border p-4 transition ${
+                        isTarget
+                          ? "border-indigo-500 bg-indigo-50/70 dark:border-indigo-500 dark:bg-indigo-950/40 ring-1 ring-indigo-400"
+                          : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="h-3 w-3 rounded-full" style={{ backgroundColor: node.color }} />
+                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{node.name}</span>
+                        </div>
+                        <span className="text-[10px] font-mono rounded bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-slate-500">
+                          {node.az}
+                        </span>
+                      </div>
+                      <div className="mt-3 space-y-1.5 text-xs font-mono text-slate-600 dark:text-slate-400">
+                        <p>Virtual Nodes: <strong className="text-slate-800 dark:text-slate-200">{node.vnodes} vnodes</strong></p>
+                        <p>RAM Allocated: <strong className="text-slate-800 dark:text-slate-200">{node.memoryUsedMb} MB</strong> / {node.capacityMb} MB</p>
+                        <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              backgroundColor: node.color,
+                              width: `${(node.memoryUsedMb / node.capacityMb) * 100}%`
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             {/* Theoretical Math Callout */}
@@ -594,7 +920,256 @@ export default function EnterpriseScaleHub() {
         </div>
       )}
 
-      {/* TAB 3: KAFKA CONSUMER GROUP LAG MONITOR */}
+      {/* TAB 3: RATE LIMITER & TOKEN BUCKET SHAPER */}
+      {activeTab === "rateLimit" && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Sliders className="text-amber-500" size={18} /> Distributed Rate Limiter & Token Bucket Shaper
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Simulate Redis Sliding Window and Token Bucket rate-limiting algorithms to protect backend clusters from DDoS and thundering herd spikes.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => sendRateLimitedRequest(1)}
+                  className="rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-3 py-1.5 text-xs font-bold shadow hover:opacity-90 transition flex items-center gap-1.5"
+                >
+                  <SendIcon size={12} /> Send 1 Request
+                </button>
+                <button
+                  onClick={() => sendRateLimitedRequest(15)}
+                  className="rounded-xl bg-amber-600 text-white px-3 py-1.5 text-xs font-bold shadow hover:bg-amber-500 transition flex items-center gap-1.5"
+                >
+                  <Zap size={12} /> Send 15 Requests (Burst)
+                </button>
+                <button
+                  onClick={() => sendRateLimitedRequest(40)}
+                  className="rounded-xl bg-rose-600 text-white px-3 py-1.5 text-xs font-bold shadow hover:bg-rose-500 transition flex items-center gap-1.5"
+                >
+                  <Flame size={12} /> Send 40 Requests (Flood Spike)
+                </button>
+              </div>
+            </div>
+
+            {/* Token Bucket Meter & Sliders */}
+            <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+              {/* Visual Bucket Glass Container */}
+              <div className="rounded-2xl bg-slate-950 p-5 border border-slate-800 flex flex-col items-center justify-between">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Token Bucket Reservoir</p>
+
+                <div className="relative mt-3 h-48 w-32 rounded-b-3xl border-b-4 border-l-4 border-r-4 border-slate-700 bg-slate-900/80 overflow-hidden flex flex-col justify-end p-1">
+                  <div
+                    className="w-full rounded-b-2xl bg-gradient-to-t from-sky-600 to-indigo-500 transition-all duration-300"
+                    style={{ height: `${(tokensRemaining / bucketCapacity) * 100}%` }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-white text-sm drop-shadow">
+                    {Math.round(tokensRemaining)} / {bucketCapacity}
+                  </div>
+                </div>
+
+                <div className="mt-3 text-center text-xs font-mono text-slate-400">
+                  Refill: <strong className="text-emerald-400">+{refillRate} tokens/sec</strong>
+                </div>
+              </div>
+
+              {/* Controls & Metrics */}
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Allowed Requests (200)</p>
+                    <p className="mt-1 text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                      {rateLimitStats.allowed}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Throttled Requests (429)</p>
+                    <p className="mt-1 text-2xl font-black text-rose-600 dark:text-rose-400 font-mono">
+                      {rateLimitStats.rejected}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Last Status Response</p>
+                    <p className={`mt-1 text-lg font-bold font-mono ${rateLimitStats.lastResult === "429 Throttled" ? "text-rose-500" : "text-emerald-500"}`}>
+                      {rateLimitStats.lastResult || "Idle"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50 space-y-1.5">
+                    <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <span>Max Burst Capacity:</span>
+                      <span className="font-mono text-indigo-600 dark:text-indigo-400">{bucketCapacity} tokens</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      value={bucketCapacity}
+                      onChange={(e) => setBucketCapacity(Number(e.target.value))}
+                      className="w-full accent-indigo-600"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50 space-y-1.5">
+                    <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <span>Refill Velocity:</span>
+                      <span className="font-mono text-emerald-600 dark:text-emerald-400">{refillRate} tokens/sec</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="30"
+                      value={refillRate}
+                      onChange={(e) => setRefillRate(Number(e.target.value))}
+                      className="w-full accent-emerald-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Rate Limit Audit Stream */}
+                <div className="rounded-xl bg-slate-950 p-3 font-mono text-xs text-slate-300 border border-slate-800 max-h-36 overflow-y-auto">
+                  <p className="text-[10px] uppercase text-slate-500 mb-1">Live HTTP Gateway Audit Stream</p>
+                  {rateLimitLog.length === 0 ? (
+                    <p className="text-slate-600 italic">Send requests above to inspect rate-limiting telemetry...</p>
+                  ) : (
+                    rateLimitLog.map((log) => (
+                      <p key={log.id} className={log.status === 200 ? "text-emerald-400" : "text-rose-400 font-bold"}>
+                        [{log.time}] {log.msg}
+                      </p>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: SERVICE MESH & CIRCUIT BREAKER TOPOLOGY */}
+      {activeTab === "mesh" && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Network className="text-indigo-600" size={18} /> Envoy Service Mesh & Circuit Breaker Topology
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Microservice-to-microservice mutual TLS (mTLS) with Hystrix/Resilience4j circuit breakers to prevent cascading outages.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setInjectError(!injectError)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${
+                    injectError
+                      ? "bg-rose-600 text-white shadow-md shadow-rose-600/30"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"
+                  }`}
+                >
+                  <AlertOctagon size={13} />
+                  {injectError ? "Error Injection Active (Failing)" : "Inject Downstream Timeout"}
+                </button>
+                <button
+                  onClick={sendMeshCall}
+                  className="rounded-xl bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow hover:bg-indigo-500 transition flex items-center gap-1.5"
+                >
+                  <SendIcon size={12} /> Dispatch RPC Request
+                </button>
+              </div>
+            </div>
+
+            {/* Circuit Breaker Status Indicator Bar */}
+            <div className="grid gap-3 sm:grid-cols-4 font-mono text-xs">
+              <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 dark:border-slate-800 dark:bg-slate-800/60">
+                <span className="text-slate-400 text-[10px]">Circuit State:</span>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 rounded-full ${
+                    circuitState === "CLOSED" ? "bg-emerald-500" : circuitState === "OPEN" ? "bg-rose-500 animate-ping" : "bg-amber-500"
+                  }`} />
+                  <strong className={`text-sm ${
+                    circuitState === "CLOSED" ? "text-emerald-600 dark:text-emerald-400" : circuitState === "OPEN" ? "text-rose-600 dark:text-rose-400" : "text-amber-500"
+                  }`}>
+                    {circuitState}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 dark:border-slate-800 dark:bg-slate-800/60">
+                <span className="text-slate-400 text-[10px]">Consecutive Failures:</span>
+                <p className="mt-1 text-sm font-bold text-slate-800 dark:text-slate-100">
+                  {consecutiveFailures} / 4 (Threshold)
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 dark:border-slate-800 dark:bg-slate-800/60">
+                <span className="text-slate-400 text-[10px]">mTLS Latency:</span>
+                <p className="mt-1 text-sm font-bold text-sky-600 dark:text-sky-400">
+                  {meshLatency}ms
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 dark:border-slate-800 dark:bg-slate-800/60">
+                <span className="text-slate-400 text-[10px]">Fallback Responses:</span>
+                <p className="mt-1 text-sm font-bold text-purple-600 dark:text-purple-400">
+                  {meshFallbackTriggered}
+                </p>
+              </div>
+            </div>
+
+            {/* Interactive Visual Architecture Graph */}
+            <div className="rounded-2xl bg-slate-950 p-6 border border-slate-800 text-xs font-mono text-slate-200 space-y-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Service Mesh Topology & SPIFFE/SPIRE Workload Identity</p>
+              <div className="grid gap-4 sm:grid-cols-3 items-center text-center">
+                {/* Gateway */}
+                <div className="rounded-xl bg-slate-900 p-4 border border-sky-500/40 space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 text-sky-400">
+                    <Server size={16} /> <strong>Envoy Ingress Gateway</strong>
+                  </div>
+                  <p className="text-[10px] text-slate-400">spiffe://cluster.local/ns/prod/sa/gateway</p>
+                  <span className="inline-block mt-2 rounded bg-sky-950 px-2 py-0.5 text-[10px] text-sky-300 font-bold">
+                    mTLS Active (TLS 1.3)
+                  </span>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex flex-col items-center justify-center text-slate-500">
+                  <span className="text-[10px] text-slate-400">gRPC Protobuf</span>
+                  <ArrowRight size={20} className="text-sky-400 animate-pulse my-1" />
+                  <span className="text-[10px] text-slate-400">{meshLatency}ms</span>
+                </div>
+
+                {/* Downstream Service with Circuit Breaker */}
+                <div className={`rounded-xl p-4 border space-y-1 transition ${
+                  circuitState === "OPEN"
+                    ? "border-rose-500 bg-rose-950/40 text-rose-200"
+                    : "border-emerald-500/40 bg-slate-900"
+                }`}>
+                  <div className="flex items-center justify-center gap-1.5">
+                    <ShieldCheck size={16} className={circuitState === "OPEN" ? "text-rose-400" : "text-emerald-400"} />
+                    <strong>Payment Service Pod</strong>
+                  </div>
+                  <p className="text-[10px] text-slate-400">spiffe://cluster.local/ns/prod/sa/payment</p>
+                  <span className={`inline-block mt-2 rounded px-2 py-0.5 text-[10px] font-bold ${
+                    circuitState === "OPEN" ? "bg-rose-900 text-rose-200" : "bg-emerald-950 text-emerald-300"
+                  }`}>
+                    Circuit: {circuitState}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: KAFKA CONSUMER GROUP LAG MONITOR */}
       {activeTab === "kafkaLag" && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
@@ -668,7 +1243,7 @@ export default function EnterpriseScaleHub() {
         </div>
       )}
 
-      {/* TAB 4: DATABASE READ/WRITE SPLITTING & LAG */}
+      {/* TAB 6: DATABASE READ/WRITE SPLITTING & LAG */}
       {activeTab === "dbSplit" && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
@@ -745,7 +1320,7 @@ export default function EnterpriseScaleHub() {
         </div>
       )}
 
-      {/* TAB 5: SRE INCIDENT COMMAND & RUNBOOK */}
+      {/* TAB 7: SRE INCIDENT COMMAND & RUNBOOK */}
       {activeTab === "sre" && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
@@ -759,11 +1334,19 @@ export default function EnterpriseScaleHub() {
                 </p>
               </div>
 
-              {incidentResolved && (
-                <span className="rounded-xl bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 flex items-center gap-1.5">
-                  <CheckCircle2 size={14} /> Outage Mitigated & SLA Restored
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowPostMortemModal(true)}
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 flex items-center gap-1.5 transition"
+                >
+                  <FileText size={13} /> View Post-Mortem Report
+                </button>
+                {incidentResolved && (
+                  <span className="rounded-xl bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 size={14} /> Outage Mitigated & SLA Restored
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Incident Selector */}
@@ -832,6 +1415,89 @@ export default function EnterpriseScaleHub() {
           </div>
         </div>
       )}
+
+      {/* SRE Post-Mortem Report Modal */}
+      {showPostMortemModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="w-full max-w-2xl rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <FileText className="text-rose-600" size={20} />
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  SRE Post-Mortem Incident Report
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowPostMortemModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              <div className="rounded-xl bg-slate-50 p-3.5 dark:bg-slate-800/80 font-mono space-y-1">
+                <p><strong>Incident Title:</strong> {activeIncident.title}</p>
+                <p><strong>Severity:</strong> {activeIncident.severity}</p>
+                <p><strong>Impacted Service:</strong> {activeIncident.service}</p>
+                <p><strong>Detection Time:</strong> {activeIncident.postMortem.detectionTime}</p>
+                <p><strong>Resolution Time:</strong> {activeIncident.postMortem.mitigationTime}</p>
+                <p><strong>Mean Time to Resolution (MTTR):</strong> <strong className="text-emerald-500">{activeIncident.postMortem.mttr}</strong></p>
+                <p><strong>Customer Impact:</strong> {activeIncident.postMortem.impactedUsers}</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-white">1. Root Cause Analysis (RCA):</h4>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">{activeIncident.rootCause}</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-white">2. Action Items & Preventive Tasks:</h4>
+                <ul className="mt-1 list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
+                  {activeIncident.postMortem.actionItems.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={copyPostMortemToClipboard}
+                className="rounded-xl bg-indigo-600 text-white px-4 py-2 text-xs font-bold hover:bg-indigo-500 flex items-center gap-1.5 transition"
+              >
+                <Copy size={13} /> Copy Markdown
+              </button>
+              <button
+                onClick={() => setShowPostMortemModal(false)}
+                className="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Small helper inline icon for Send
+function SendIcon({ size = 14, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
   );
 }
