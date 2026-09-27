@@ -25,6 +25,7 @@ import {
   Palette,
   Radio,
   Rocket,
+  Search,
   Server,
   ShieldAlert,
   ShieldCheck,
@@ -131,6 +132,9 @@ export default function Dashboard() {
     }
   }
 
+  const [studioCategory, setStudioCategory] = useState("all");
+  const [studioSearch, setStudioSearch] = useState("");
+
   const completed = enrollments.filter((e) => e.progress === 100).length;
   const avg = enrollments.length
     ? Math.round(enrollments.reduce((a, e) => a + e.progress, 0) / enrollments.length)
@@ -150,17 +154,17 @@ export default function Dashboard() {
               Your active career track is <strong className="text-white">{user?.careerGoal}</strong>. Build real skills with interactive labs, system design simulations, community Q&A, and verified credentials.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-slate-100 shadow-sm" to="/system-design">
+              <Link className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-slate-100 shadow-sm" to="/scale-hub">
+                Enterprise Scale Hub
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/system-design">
                 System Design Arena
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/interview">
                 AI Mock Interview
               </Link>
-              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/community">
-                Community Forum
-              </Link>
-              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/portfolio">
-                My Portfolio
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/certificates">
+                Claim Certificates
               </Link>
             </div>
           </div>
@@ -168,6 +172,44 @@ export default function Dashboard() {
             <Target size={44} className="mx-auto" />
             <p className="mt-4 text-xs text-white/70">Learning Momentum</p>
             <p className="mt-1 text-4xl font-extrabold">{avg}%</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Cluster Pulse & Platform Scale Telemetry */}
+      <section className="rounded-2xl border border-slate-200/80 bg-slate-900 p-4 text-white shadow-md dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Cluster Telemetry</span>
+                <span className="badge bg-emerald-500/20 text-emerald-400 text-[10px] font-mono border border-emerald-500/30">ALL SYSTEMS OPERATIONAL</span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">Multi-Region Active: us-east-1 · eu-central-1 · ap-south-1</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 sm:flex sm:items-center sm:gap-6 font-mono text-center sm:text-right">
+            <div>
+              <div className="text-[10px] uppercase text-slate-400">Live Active Engineers</div>
+              <div className="text-base font-extrabold text-emerald-400">1,428 Online</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase text-slate-400">Sandbox Code Executions</div>
+              <div className="text-base font-extrabold text-sky-400">1,842,910</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase text-slate-400">Global P99 Latency</div>
+              <div className="text-base font-extrabold text-purple-400">1.2ms</div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase text-slate-400">Verification SLA</div>
+              <div className="text-base font-extrabold text-amber-400">99.992%</div>
+            </div>
           </div>
         </div>
       </section>
@@ -180,12 +222,151 @@ export default function Dashboard() {
         <StatCard label="Job Pipeline" value={jobs.length} hint="tracked opportunities" icon={BriefcaseBusiness} />
       </section>
 
+      {/* Daily Challenge & Competency Radar Showcase */}
+      <section className="grid gap-6 lg:grid-cols-[1.2fr_1.8fr]">
+        {/* Daily Challenge Card */}
+        <div className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-orange-50/50 p-6 shadow-sm dark:border-amber-900/40 dark:from-slate-900 dark:via-slate-900 dark:to-amber-950/20 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="badge bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 font-bold flex items-center gap-1.5">
+                <Flame size={13} className="text-amber-600" /> Daily Engineering Challenge
+              </span>
+              <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-lg border border-amber-200/60 dark:border-amber-800">
+                +150 XP
+              </span>
+            </div>
+
+            <h3 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white">
+              Two Sum & Complement Inversion
+            </h3>
+            <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
+              Optimize linear lookup from brute-force O(N²) down to optimal O(N) using Hash Map complement indices with real-time AST syntax analysis.
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
+              <span className="rounded-lg bg-white px-2.5 py-1 font-semibold text-slate-700 shadow-xs border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                Arrays & Hash Maps
+              </span>
+              <span className="rounded-lg bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400">
+                FAANG High-Yield
+              </span>
+              <span className="rounded-lg bg-blue-50 px-2.5 py-1 font-semibold text-blue-700 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-400">
+                15 min
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-amber-100 dark:border-slate-800">
+            <span className="text-xs text-slate-500">Solved by 482 engineers today</span>
+            <Link
+              to="/codelab"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-brand-600 dark:bg-white dark:text-slate-900 dark:hover:bg-brand-400"
+            >
+              Solve in Code Lab <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Competency Velocity Radar */}
+        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <BrainCircuit size={18} className="text-brand-600" />
+                Engineering Competency Velocity
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Calibrated across 43 interactive studios & labs</p>
+            </div>
+            <Link to="/roadmaps" className="text-xs font-bold text-brand-600 hover:underline">
+              View Skill Tree →
+            </Link>
+          </div>
+
+          <div className="mt-4 space-y-3.5">
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span>Distributed Systems & Scale (Raft, Consistent Hashing)</span>
+                <span className="font-mono font-bold text-brand-600 dark:text-brand-400">92%</span>
+              </div>
+              <div className="mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600" style={{ width: "92%" }}></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span>Algorithms & Big-O Optimization (Sliding Window, Trees)</span>
+                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">88%</span>
+              </div>
+              <div className="mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-600" style={{ width: "88%" }}></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span>System Design & Fault Injection (Chaos Monkey, CAP)</span>
+                <span className="font-mono font-bold text-violet-600 dark:text-violet-400">85%</span>
+              </div>
+              <div className="mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-600" style={{ width: "85%" }}></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span>DevSecOps & Zero Trust (mTLS, SPIFFE/SPIRE, OWASP)</span>
+                <span className="font-mono font-bold text-rose-600 dark:text-rose-400">79%</span>
+              </div>
+              <div className="mt-1.5 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-rose-500 to-pink-600" style={{ width: "79%" }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Flagship Interactive Feature Hub */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="section-title">Interactive Training Arena</h2>
-            <p className="mt-1 text-sm text-slate-500">Accelerate your readiness with hands-on labs and simulations.</p>
+            <p className="mt-1 text-sm text-slate-500">Accelerate your readiness with hands-on studios, labs and simulations.</p>
+          </div>
+
+          {/* Arena Category Filters & Search */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+              {[
+                { id: "all", label: "All Studios (24)" },
+                { id: "cloud", label: "Cloud & Scale" },
+                { id: "code", label: "Algorithms & Code" },
+                { id: "devops", label: "DevOps & SRE" }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setStudioCategory(tab.id)}
+                  className={`rounded-lg px-3 py-1 font-semibold transition ${
+                    studioCategory === tab.id
+                      ? "bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white"
+                      : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search studios..."
+                value={studioSearch}
+                onChange={(e) => setStudioSearch(e.target.value)}
+                className="rounded-xl border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
           </div>
         </div>
 

@@ -32,12 +32,24 @@ export const claimCertificate = async (req, res, next) => {
       return res.json({ success: true, certificate: existing, alreadyClaimed: true });
     }
 
-    // Verify 100% completion in enrollment
-    const enrollment = await Enrollment.findOne({ user: req.user._id, course: courseId });
-    if (!enrollment || enrollment.progress < 100) {
+    // Verify 100% completion in enrollment (or passing knowledge assessment exam in claim sandbox)
+    let enrollment = await Enrollment.findOne({ user: req.user._id, course: courseId });
+    if ((!enrollment || enrollment.progress < 100) && req.body.examScore && req.body.examScore >= 80) {
+      if (!enrollment) {
+        enrollment = await Enrollment.create({
+          user: req.user._id,
+          course: courseId,
+          progress: 100,
+          completedLessons: []
+        });
+      } else {
+        enrollment.progress = 100;
+        await enrollment.save();
+      }
+    } else if (!enrollment || enrollment.progress < 100) {
       return res.status(400).json({
         success: false,
-        message: `Course not completed yet. Current progress: ${enrollment ? enrollment.progress : 0}%. Complete all lessons to earn your certificate.`
+        message: `Course not completed yet. Current progress: ${enrollment ? enrollment.progress : 0}%. Complete all lessons or pass the knowledge exam to earn your certificate.`
       });
     }
 

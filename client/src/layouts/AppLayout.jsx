@@ -32,6 +32,7 @@ import {
   Radio,
   Rocket,
   Server,
+  Search,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -47,8 +48,10 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../store/auth";
+import CommandPalette from "../components/CommandPalette";
 
 export default function AppLayout() {
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
   const [learnOpen, setLearnOpen] = useState(false);
@@ -108,6 +111,18 @@ export default function AppLayout() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Global keyboard shortcut for Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
@@ -512,8 +527,21 @@ export default function AppLayout() {
             )}
           </nav>
 
-          {/* Right Controls: Notifications + Dark Mode Toggle + Profile + Logout */}
+          {/* Right Controls: Quick Search + Notifications + Dark Mode Toggle + Profile + Logout */}
           <div className="hidden items-center gap-2.5 md:flex">
+            {/* Command Palette Spotlight Button */}
+            <button
+              onClick={() => setCommandPaletteOpen(true)}
+              className="flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-100/70 px-2.5 py-1.5 text-xs text-slate-500 transition hover:border-brand-400 hover:bg-white hover:text-slate-900 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:border-brand-500 dark:hover:bg-slate-800 dark:hover:text-slate-100 shadow-xs"
+              title="Search studios, labs & actions (⌘K / Ctrl+K)"
+            >
+              <Search size={14} className="text-slate-400" />
+              <span className="hidden xl:inline text-xs font-medium">Quick search...</span>
+              <kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 shadow-xs">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* Notification Bell */}
             <div className="relative" ref={notifRef}>
               <button
@@ -595,8 +623,15 @@ export default function AppLayout() {
             </button>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger & search */}
           <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={() => setCommandPaletteOpen(true)}
+              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              title="Search Studios & Tools (⌘K)"
+            >
+              <Search size={18} />
+            </button>
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="rounded-lg p-2 text-slate-600 dark:text-slate-300"
@@ -742,6 +777,12 @@ export default function AppLayout() {
             </div>
           </div>
         )}
+
+        {/* Global Command Palette Modal */}
+        <CommandPalette
+          isOpen={commandPaletteOpen}
+          onClose={() => setCommandPaletteOpen(false)}
+        />
       </header>
 
       <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
