@@ -59,7 +59,47 @@ export const COMMAND_ITEMS = [
     path: "/scale-hub",
     icon: Server,
     color: "text-sky-500 bg-sky-50 dark:bg-sky-950/50",
-    keywords: "consistent hash ring rate limiter token bucket opentelemetry mtls circuit breaker spiffe spire sre runbook incident postmortem"
+    keywords: "consistent hash ring rate limiter token bucket opentelemetry mtls circuit breaker spiffe spire sre runbook incident postmortem saga crdt sharding stampede"
+  },
+  {
+    id: "scale-saga",
+    title: "Distributed Sagas & Idempotency Engine",
+    category: "Flagship Studios",
+    desc: "Compensating transactions state machine, 2PC alternatives, and RFC 9421 cryptographic Idempotency-Key validation.",
+    path: "/scale-hub",
+    icon: GitBranch,
+    color: "text-amber-500 bg-amber-50 dark:bg-amber-950/50",
+    keywords: "saga 2pc two phase commit compensating transaction rollback idempotency key deduplication outbox pattern"
+  },
+  {
+    id: "scale-crdt",
+    title: "Multi-Region Active-Active CRDTs",
+    category: "Flagship Studios",
+    desc: "Join-semilattice conflict resolution, vector clocks, and cross-Atlantic split-brain partition tolerance.",
+    path: "/scale-hub",
+    icon: Globe,
+    color: "text-purple-500 bg-purple-50 dark:bg-purple-950/50",
+    keywords: "crdt vector clocks multi region active active dynamo spanner split brain eventual consistency join semilattice"
+  },
+  {
+    id: "scale-sharding",
+    title: "Database Sharding & Scatter-Gather",
+    category: "Flagship Studios",
+    desc: "4-node horizontal partition router, MurmurHash3 point queries, fan-out scatter-gather latency, and zero-downtime resharding.",
+    path: "/scale-hub",
+    icon: Shuffle,
+    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50",
+    keywords: "database sharding horizontal partition scatter gather fanout murmurhash cdc dual write cutover"
+  },
+  {
+    id: "scale-stampede",
+    title: "Cache Stampede & XFetch Defense Lab",
+    category: "Flagship Studios",
+    desc: "Thundering herd 1,000 VU stress-test, distributed mutex locks, and probabilistic early expiration algorithm.",
+    path: "/scale-hub",
+    icon: Flame,
+    color: "text-rose-500 bg-rose-50 dark:bg-rose-950/50",
+    keywords: "cache stampede thundering herd xfetch probabilistic early expiration redis redlock ttl dogpiling"
   },
   {
     id: "system-design",

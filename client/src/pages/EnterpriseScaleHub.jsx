@@ -32,6 +32,7 @@ import {
   Share2,
   ShieldAlert,
   ShieldCheck,
+  Shuffle,
   Sliders,
   Sparkles,
   Terminal,
@@ -229,6 +230,382 @@ export default function EnterpriseScaleHub() {
   const [incidentSteps, setIncidentSteps] = useState(SRE_INCIDENTS[0].mitigationSteps);
   const [incidentResolved, setIncidentResolved] = useState(false);
   const [showPostMortemModal, setShowPostMortemModal] = useState(false);
+
+  // Live Node Cluster Metrics
+  const [clusterMetrics, setClusterMetrics] = useState(null);
+
+  // Distributed Saga & Idempotency State
+  const [sagaFailureStep, setSagaFailureStep] = useState("payment"); // 'none' | 'inventory' | 'payment' | 'dispatch'
+  const [isExecutingSaga, setIsExecutingSaga] = useState(false);
+  const [sagaTimeline, setSagaTimeline] = useState([
+    { step: 1, service: "order-service", action: "CREATE_ORDER", status: "SUCCESS", isCompensation: false, details: "Order saga_9941 initialized in PENDING state" },
+    { step: 2, service: "inventory-service", action: "RESERVE_STOCK", status: "SUCCESS", isCompensation: false, details: "Reserved 1 unit of SKU_SKILLTRACK_PRO (Lock TTL: 300s)" },
+    { step: 3, service: "payment-service", action: "CHARGE_CARD", status: "FAILED", isCompensation: false, details: "Payment Gateway 504 Timeout / Insufficient Funds" },
+    { step: 4, service: "inventory-service", action: "RELEASE_STOCK", status: "COMPENSATED", isCompensation: true, details: "Released reserved unit back to pool" },
+    { step: 5, service: "order-service", action: "CANCEL_ORDER", status: "COMPENSATED", isCompensation: true, details: "Order saga_9941 marked as CANCELLED (Payment Failed)" }
+  ]);
+  const [sagaOutcome, setSagaOutcome] = useState("ROLLED_BACK");
+  const [idempKey, setIdempKey] = useState("idemp_usr_9981a2");
+  const [idempAmount, setIdempAmount] = useState(249.99);
+  const [idempResult, setIdempResult] = useState(null);
+  const [isTestingIdemp, setIsTestingIdemp] = useState(false);
+
+  // CRDT & Vector Clocks State
+  const [crdtRegions, setCrdtRegions] = useState([
+    { id: "us-east-1", label: "US East (N. Virginia)", counterP: 14, counterN: 2, vectorClock: { "us-east": 8, "eu-west": 4, "ap-south": 2 } },
+    { id: "eu-west-1", label: "EU West (Frankfurt)", counterP: 19, counterN: 3, vectorClock: { "us-east": 7, "eu-west": 9, "ap-south": 2 } },
+    { id: "ap-southeast-1", label: "AP South (Singapore)", counterP: 12, counterN: 1, vectorClock: { "us-east": 6, "eu-west": 4, "ap-south": 5 } }
+  ]);
+  const [splitBrainActive, setSplitBrainActive] = useState(false);
+  const [crdtConvergedResult, setCrdtConvergedResult] = useState({
+    convergedValue: 16,
+    convergedClock: { "us-east": 8, "eu-west": 9, "ap-south": 5 },
+    lastSync: "Just now"
+  });
+  const [isSyncingCrdt, setIsSyncingCrdt] = useState(false);
+
+  // Database Sharding State
+  const [shardingKeyInput, setShardingKeyInput] = useState("usr_9941a8");
+  const [shardingResult, setShardingResult] = useState({
+    queryType: "POINT_LOOKUP",
+    hashValue: 2748192014,
+    targetShard: { id: 2, name: "shard-eu-primary-0", region: "eu-west-1" },
+    latencyMs: 1.4,
+    shardsContacted: 1,
+    summary: "Point lookup routed directly to shard-eu-primary-0 via MurmurHash3(usr_9941a8) % 4."
+  });
+  const [isRoutingSharding, setIsRoutingSharding] = useState(false);
+  const [reshardingStep, setReshardingStep] = useState(0); // 0 to 4
+  const [isResharding, setIsResharding] = useState(false);
+
+  // Cache Stampede & XFetch State
+  const [stampedeStrategy, setStampedeStrategy] = useState("xfetch"); // 'naive_ttl' | 'mutex_lock' | 'xfetch'
+  const [isSimulatingStampede, setIsSimulatingStampede] = useState(false);
+  const [stampedeResult, setStampedeResult] = useState({
+    strategy: "xfetch",
+    concurrentRequests: 1000,
+    dbQueries: 1,
+    cacheHits: 1000,
+    avgLatencyMs: 1.2,
+    systemState: "OPTIMAL_ZERO_STAMPEDE",
+    summary: "Probabilistic Early Expiration (XFetch) prevented 100% of cache stampede. Exactly 1 background refresh was triggered before TTL expired."
+  });
+
+  // Fetch live cluster metrics
+  useEffect(() => {
+    fetch("/api/scale/metrics")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setClusterMetrics(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Saga Handler
+  const handleExecuteSaga = async () => {
+    setIsExecutingSaga(true);
+    try {
+      const res = await fetch("/api/scale/saga/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          simulateFailureStep: sagaFailureStep === "none" ? null : sagaFailureStep,
+          amount: 249.99
+        })
+      });
+      const data = await res.json();
+      if (data.timeline) {
+        setSagaTimeline(data.timeline);
+        setSagaOutcome(data.outcome);
+        if (data.outcome === "COMMITTED") {
+          toast.success("Distributed Saga Committed across 4 services!");
+        } else {
+          toast.error("Saga Failed: Reverse compensations executed!");
+        }
+        setIsExecutingSaga(false);
+        return;
+      }
+    } catch {}
+
+    const mockTimeline = [
+      { step: 1, service: "order-service", action: "CREATE_ORDER", status: "SUCCESS", isCompensation: false, details: "Order saga_demo initialized in PENDING state" }
+    ];
+    if (sagaFailureStep === "inventory") {
+      mockTimeline.push({ step: 2, service: "inventory-service", action: "RESERVE_STOCK", status: "FAILED", isCompensation: false, details: "Out of Stock for SKU_SKILLTRACK_PRO" });
+      mockTimeline.push({ step: 3, service: "order-service", action: "CANCEL_ORDER", status: "COMPENSATED", isCompensation: true, details: "Compensated: Cancelled Order saga_demo" });
+      setSagaOutcome("ROLLED_BACK");
+      toast.error("Saga Rolled Back: Inventory failure compensated.");
+    } else if (sagaFailureStep === "payment") {
+      mockTimeline.push({ step: 2, service: "inventory-service", action: "RESERVE_STOCK", status: "SUCCESS", isCompensation: false, details: "Reserved 1 unit of SKU_SKILLTRACK_PRO" });
+      mockTimeline.push({ step: 3, service: "payment-service", action: "CHARGE_CARD", status: "FAILED", isCompensation: false, details: "504 Gateway Timeout on Stripe API" });
+      mockTimeline.push({ step: 4, service: "inventory-service", action: "RELEASE_STOCK", status: "COMPENSATED", isCompensation: true, details: "Compensated: Released inventory lock" });
+      mockTimeline.push({ step: 5, service: "order-service", action: "CANCEL_ORDER", status: "COMPENSATED", isCompensation: true, details: "Compensated: Cancelled Order saga_demo" });
+      setSagaOutcome("ROLLED_BACK");
+      toast.error("Saga Rolled Back: Payment failure compensated.");
+    } else if (sagaFailureStep === "dispatch") {
+      mockTimeline.push({ step: 2, service: "inventory-service", action: "RESERVE_STOCK", status: "SUCCESS", isCompensation: false, details: "Reserved 1 unit of SKU_SKILLTRACK_PRO" });
+      mockTimeline.push({ step: 3, service: "payment-service", action: "CHARGE_CARD", status: "SUCCESS", isCompensation: false, details: "Charged $249.99 via Stripe" });
+      mockTimeline.push({ step: 4, service: "fulfillment-service", action: "PROVISION_ACCESS", status: "FAILED", isCompensation: false, details: "License cluster synchronization failed" });
+      mockTimeline.push({ step: 5, service: "payment-service", action: "REFUND_CHARGE", status: "COMPENSATED", isCompensation: true, details: "Compensated: Full refund issued to customer" });
+      mockTimeline.push({ step: 6, service: "inventory-service", action: "RELEASE_STOCK", status: "COMPENSATED", isCompensation: true, details: "Compensated: Released inventory lock" });
+      mockTimeline.push({ step: 7, service: "order-service", action: "CANCEL_ORDER", status: "COMPENSATED", isCompensation: true, details: "Compensated: Cancelled Order saga_demo" });
+      setSagaOutcome("ROLLED_BACK");
+      toast.error("Saga Rolled Back: License failure compensated.");
+    } else {
+      mockTimeline.push({ step: 2, service: "inventory-service", action: "RESERVE_STOCK", status: "SUCCESS", isCompensation: false, details: "Reserved 1 unit of SKU_SKILLTRACK_PRO" });
+      mockTimeline.push({ step: 3, service: "payment-service", action: "CHARGE_CARD", status: "SUCCESS", isCompensation: false, details: "Charged $249.99 via Stripe" });
+      mockTimeline.push({ step: 4, service: "fulfillment-service", action: "PROVISION_ACCESS", status: "SUCCESS", isCompensation: false, details: "SkillTrack Enterprise License provisioned" });
+      setSagaOutcome("COMMITTED");
+      toast.success("Distributed Saga Committed across 4 services!");
+    }
+    setSagaTimeline(mockTimeline);
+    setIsExecutingSaga(false);
+  };
+
+  // Idempotency Handler
+  const handleVerifyIdempotency = async (mode = "fresh") => {
+    setIsTestingIdemp(true);
+    let key = idempKey;
+    let payload = { customerId: "usr_481", amount: idempAmount, plan: "ENTERPRISE_TEAM" };
+    if (mode === "tamper") {
+      payload.amount = 9999.00;
+    }
+    try {
+      const res = await fetch("/api/scale/idempotency/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": key },
+        body: JSON.stringify({ idempotencyKey: key, payload })
+      });
+      const data = await res.json();
+      setIdempResult(data);
+      if (data.idempotentReplay) {
+        toast.success("Idempotent Replay Cached: Served in 0ms with zero DB duplicate!");
+      } else if (data.status === "IDEMPOTENCY_CONFLICT") {
+        toast.error("422 Idempotency Conflict: Payload altered with reused key!");
+      } else {
+        toast.success("201 Created: Fresh transaction processed and key locked.");
+      }
+    } catch {
+      if (mode === "replay") {
+        setIdempResult({
+          status: "CACHED_IDEMPOTENT_RESPONSE",
+          idempotentReplay: true,
+          idempotencyKey: key,
+          responsePayload: { transactionId: "txn_77f481a", status: "COMPLETED", amount: idempAmount },
+          message: "Duplicate request detected. Returned previously computed result with zero redundant DB side-effects."
+        });
+        toast.success("Idempotent Replay Cached: Served in 0ms!");
+      } else if (mode === "tamper") {
+        setIdempResult({
+          status: "IDEMPOTENCY_CONFLICT",
+          error: "Idempotency-Key reused with conflicting payload fingerprint (RFC 9421 violation).",
+          expectedFingerprint: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          receivedFingerprint: "4a59a7f3b89098e94a8e98418abdf45678ab4889cdefa12401827498aefb8112"
+        });
+        toast.error("422 Idempotency Conflict: Payload altered with reused key!");
+      } else {
+        setIdempResult({
+          status: "EXECUTED_FRESH",
+          idempotentReplay: false,
+          idempotencyKey: key,
+          responsePayload: { transactionId: "txn_77f481a", status: "COMPLETED", amount: idempAmount },
+          message: "First-time request executed and cached under atomic lock for 3600 seconds."
+        });
+        toast.success("201 Created: Fresh transaction processed.");
+      }
+    } finally {
+      setIsTestingIdemp(false);
+    }
+  };
+
+  // CRDT Regional Update Handler
+  const handleUpdateCrdtRegion = (regionId, type, delta = 1) => {
+    setCrdtRegions((prev) =>
+      prev.map((r) => {
+        if (r.id !== regionId) return r;
+        const newP = type === "P" ? r.counterP + delta : r.counterP;
+        const newN = type === "N" ? r.counterN + delta : r.counterN;
+        const shortName = regionId === "us-east-1" ? "us-east" : regionId === "eu-west-1" ? "eu-west" : "ap-south";
+        const newClock = { ...r.vectorClock, [shortName]: (r.vectorClock[shortName] || 0) + 1 };
+        return { ...r, counterP: newP, counterN: newN, vectorClock: newClock };
+      })
+    );
+  };
+
+  // CRDT Sync Handler
+  const handleSyncCrdt = async () => {
+    setIsSyncingCrdt(true);
+    try {
+      const res = await fetch("/api/scale/crdt/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regions: crdtRegions })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCrdtConvergedResult({
+          convergedValue: data.convergedValue,
+          convergedClock: data.convergedVectorClock,
+          lastSync: "Just now"
+        });
+        toast.success("CRDT Converged! Evaluated join-semilattice across 3 regional masters.");
+        setIsSyncingCrdt(false);
+        return;
+      }
+    } catch {}
+
+    const maxP = Math.max(...crdtRegions.map((r) => r.counterP));
+    const maxN = Math.max(...crdtRegions.map((r) => r.counterN));
+    const mergedClock = {};
+    crdtRegions.forEach((r) => {
+      Object.entries(r.vectorClock).forEach(([k, v]) => {
+        mergedClock[k] = Math.max(mergedClock[k] || 0, v);
+      });
+    });
+    setCrdtConvergedResult({
+      convergedValue: maxP - maxN,
+      convergedClock: mergedClock,
+      lastSync: "Just now"
+    });
+    toast.success("CRDT Converged! Computed supremum over vector clocks.");
+    setIsSyncingCrdt(false);
+  };
+
+  // Sharding Query Handler
+  const handleRouteSharding = async (type = "POINT_LOOKUP") => {
+    setIsRoutingSharding(true);
+    try {
+      const res = await fetch("/api/scale/sharding/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shardingKey: shardingKeyInput, queryType: type })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShardingResult(data);
+        toast.success(type === "POINT_LOOKUP" ? "Point Lookup: Routed to single shard in 1.4ms" : "Scatter-Gather: Evaluated 4 shards in parallel");
+        setIsRoutingSharding(false);
+        return;
+      }
+    } catch {}
+
+    if (type === "POINT_LOOKUP") {
+      let hash = 0;
+      for (let i = 0; i < shardingKeyInput.length; i++) {
+        hash = (hash * 31 + shardingKeyInput.charCodeAt(i)) >>> 0;
+      }
+      const shardIdx = hash % 4;
+      const shardNames = ["shard-us-primary-0", "shard-us-primary-1", "shard-eu-primary-0", "shard-ap-primary-0"];
+      setShardingResult({
+        queryType: "POINT_LOOKUP",
+        hashValue: hash,
+        targetShard: { id: shardIdx, name: shardNames[shardIdx], region: shardIdx < 2 ? "us-east-1" : shardIdx === 2 ? "eu-west-1" : "ap-southeast-1" },
+        latencyMs: 1.4,
+        shardsContacted: 1,
+        summary: `Point query routed directly to ${shardNames[shardIdx]} in 1.4ms.`
+      });
+      toast.success("Point Lookup: Routed to single shard in 1.4ms");
+    } else {
+      setShardingResult({
+        queryType: "SCATTER_GATHER",
+        targetShard: "ALL_SHARDS",
+        shardsContacted: 4,
+        latencyMs: 26.2,
+        aggregationOverheadMs: 4.2,
+        summary: "Scatter-gather query fanned out across all 4 shards in parallel. Total latency: 26.2ms (slowest shard 22ms + aggregation 4.2ms)."
+      });
+      toast.success("Scatter-Gather: Dispatched across 4 shards in parallel.");
+    }
+    setIsRoutingSharding(false);
+  };
+
+  // Zero-Downtime Resharding Simulator
+  const handleStartResharding = () => {
+    if (isResharding) return;
+    setIsResharding(true);
+    setReshardingStep(1);
+    toast("Phase 1: Dual-Write enabled to both 4-node & new 8-node cluster...", { icon: "🔄" });
+
+    setTimeout(() => {
+      setReshardingStep(2);
+      toast("Phase 2: CDC Backfill streaming historical tables to new shards...", { icon: "📦" });
+
+      setTimeout(() => {
+        setReshardingStep(3);
+        toast("Phase 3: Shadow Reads active — verifying 100% cryptographic checksum parity...", { icon: "🔍" });
+
+        setTimeout(() => {
+          setReshardingStep(4);
+          setIsResharding(false);
+          toast.success("Phase 4: Cutover complete! Zero dropped requests during 4-to-8 shard expansion.");
+        }, 1200);
+      }, 1200);
+    }, 1200);
+  };
+
+  // Cache Stampede Simulator
+  const handleSimulateStampede = async (strat) => {
+    setStampedeStrategy(strat);
+    setIsSimulatingStampede(true);
+    try {
+      const res = await fetch("/api/scale/cache-stampede/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ strategy: strat, concurrentRequests: 1000 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStampedeResult(data);
+        if (strat === "naive_ttl") {
+          toast.error("Catastrophic Cache Stampede! 1,000 DB queries spiked CPU to 100%.");
+        } else if (strat === "mutex_lock") {
+          toast.success("Distributed Mutex: Only 1 query hit DB; 999 waited for cache.");
+        } else {
+          toast.success("XFetch Probabilistic Early Expiration: 100% cache hits at 1.2ms!");
+        }
+        setIsSimulatingStampede(false);
+        return;
+      }
+    } catch {}
+
+    if (strat === "naive_ttl") {
+      setStampedeResult({
+        strategy: "naive_ttl",
+        concurrentRequests: 1000,
+        dbQueries: 1000,
+        cacheHits: 0,
+        avgLatencyMs: 1840,
+        systemState: "CRITICAL_COLLAPSE",
+        summary: "Catastrophic Cache Stampede! 1,000 concurrent requests slammed MongoDB primary at TTL expiry. CPU spiked to 100%, latency jumped to 1,840ms."
+      });
+      toast.error("Catastrophic Cache Stampede! 1,000 DB queries spiked CPU to 100%.");
+    } else if (strat === "mutex_lock") {
+      setStampedeResult({
+        strategy: "mutex_lock",
+        concurrentRequests: 1000,
+        dbQueries: 1,
+        cacheHits: 999,
+        avgLatencyMs: 8.4,
+        systemState: "PROTECTED",
+        summary: "Distributed Mutex (Redlock) prevented duplicate DB execution. Exactly 1 request regenerated key while 999 requests queued or read replica."
+      });
+      toast.success("Distributed Mutex: Exactly 1 query hit DB; 999 waited for lock.");
+    } else {
+      setStampedeResult({
+        strategy: "xfetch",
+        concurrentRequests: 1000,
+        dbQueries: 1,
+        cacheHits: 1000,
+        avgLatencyMs: 1.2,
+        systemState: "OPTIMAL_ZERO_STAMPEDE",
+        summary: "Probabilistic Early Expiration (XFetch) prevented 100% of cache stampede. Exactly 1 asynchronous background refresh occurred while 1,000 requests hit hot cache at 1.2ms."
+      });
+      toast.success("XFetch Probabilistic Early Expiration: 100% cache hits at 1.2ms!");
+    }
+    setIsSimulatingStampede(false);
+  };
 
   // Consistent hash key placement calculation
   const computeKeyPlacement = (keyStr, nodeList) => {
@@ -556,6 +933,50 @@ ${activeIncident.postMortem.actionItems.map((a, i) => `${i + 1}. ${a}`).join("\n
             }`}
           >
             <Database size={14} /> DB Read/Write Split & Lag
+          </button>
+
+          <button
+            onClick={() => setActiveTab("saga")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "saga"
+                ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <GitBranch size={14} /> Sagas & Idempotency
+          </button>
+
+          <button
+            onClick={() => setActiveTab("crdt")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "crdt"
+                ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Globe size={14} /> Multi-Region CRDTs
+          </button>
+
+          <button
+            onClick={() => setActiveTab("sharding")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "sharding"
+                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Shuffle size={14} /> DB Sharding & Fan-Out
+          </button>
+
+          <button
+            onClick={() => setActiveTab("stampede")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === "stampede"
+                ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30"
+                : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Flame size={14} /> Cache Stampede & XFetch
           </button>
 
           <button
@@ -1315,6 +1736,669 @@ ${activeIncident.postMortem.actionItems.map((a, i) => `${i + 1}. ${a}`).join("\n
                   <p className="mt-2 text-base font-bold">13,100 Read QPS</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: DISTRIBUTED SAGAS & IDEMPOTENCY KEY ENGINE */}
+      {activeTab === "saga" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <GitBranch className="text-amber-500" size={18} /> Distributed Saga Orchestration & Compensating Transactions
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Overcomes 2-Phase Commit (2PC) blocking locks using orchestrated sagas with automated reverse compensating rollbacks.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
+                  sagaOutcome === "COMMITTED"
+                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                    : "bg-rose-500/10 text-rose-600 border-rose-500/30"
+                }`}>
+                  Status: {sagaOutcome}
+                </span>
+              </div>
+            </div>
+
+            {/* Saga Controls & Chaos Failure Selector */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50 space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Inject Chaos Failure Scenario:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: "none", label: "No Failure (Commit All)" },
+                    { id: "inventory", label: "Inventory Out of Stock" },
+                    { id: "payment", label: "Payment 504 Timeout" },
+                    { id: "dispatch", label: "License Dispatch Crash" }
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setSagaFailureStep(f.id)}
+                      className={`px-2.5 py-2 rounded-lg text-xs font-semibold text-center border transition ${
+                        sagaFailureStep === f.id
+                          ? "bg-amber-500/10 border-amber-500 text-amber-700 dark:text-amber-300"
+                          : "border-slate-200 bg-white hover:bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {sagaFailureStep === "none"
+                    ? "All 4 microservices will succeed and commit forward transactions."
+                    : `Simulating a fatal downstream fault. Saga Orchestrator will abort forward flow and fire reverse compensating transactions.`}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50 flex flex-col justify-between space-y-3">
+                <div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Execute Workflow:</span>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                    Dispatches to Node.js orchestrator at <code>POST /api/scale/saga/execute</code>.
+                  </p>
+                </div>
+                <button
+                  onClick={handleExecuteSaga}
+                  disabled={isExecutingSaga}
+                  className="w-full rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 px-4 text-xs shadow-md transition flex items-center justify-center gap-2"
+                >
+                  {isExecutingSaga ? <RefreshCw className="animate-spin" size={14} /> : <Play size={14} />}
+                  {isExecutingSaga ? "Orchestrating..." : "Dispatch Distributed Saga"}
+                </button>
+              </div>
+            </div>
+
+            {/* Visual Forward & Reverse Compensating Flow Pipeline */}
+            <div className="rounded-xl bg-slate-950 p-4 text-xs font-mono text-slate-300 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="uppercase text-[11px] tracking-wider text-slate-500 font-bold">
+                  Saga Microservice Orchestration DAG
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Pattern: Orchestrated Coordinator with Idempotent Outbox
+                </span>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-4">
+                {[
+                  { name: "Order Service", stepName: "1. Create Order", icon: Database },
+                  { name: "Inventory Service", stepName: "2. Reserve Stock", icon: Layers },
+                  { name: "Payment Gateway", stepName: "3. Charge Card", icon: Zap },
+                  { name: "Fulfillment Svc", stepName: "4. Provision License", icon: Server }
+                ].map((svc, idx) => {
+                  const stepEvents = sagaTimeline.filter((t) => t.service.includes(svc.name.toLowerCase().split(" ")[0]));
+                  const hasFailed = stepEvents.some((e) => e.status === "FAILED");
+                  const hasCompensated = stepEvents.some((e) => e.status === "COMPENSATED");
+                  const hasSuccess = stepEvents.some((e) => e.status === "SUCCESS");
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`rounded-xl p-3.5 border transition ${
+                        hasFailed
+                          ? "bg-rose-950/40 border-rose-500/50 text-rose-300"
+                          : hasCompensated
+                          ? "bg-amber-950/40 border-amber-500/50 text-amber-300"
+                          : hasSuccess
+                          ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-300"
+                          : "bg-slate-900 border-slate-800 text-slate-400"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-bold">
+                        <span>{svc.stepName}</span>
+                        <svc.icon size={13} />
+                      </div>
+                      <p className="mt-1 font-bold text-xs">{svc.name}</p>
+                      <div className="mt-2 text-[10px]">
+                        {hasFailed && <span className="text-rose-400 font-bold">● FAULT TRIGGERED</span>}
+                        {hasCompensated && <span className="text-amber-400 font-bold">↩ COMPENSATED (REVERSED)</span>}
+                        {hasSuccess && !hasCompensated && <span className="text-emerald-400 font-bold">✓ FORWARD COMMITTED</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Real-time Step Timeline Audit Table */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                Live Transaction & Compensation Audit Trail:
+              </h3>
+              <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <tr>
+                      <th className="py-2.5 px-3 font-bold">#</th>
+                      <th className="py-2.5 px-3 font-bold">Microservice</th>
+                      <th className="py-2.5 px-3 font-bold">Action / RPC</th>
+                      <th className="py-2.5 px-3 font-bold">Type</th>
+                      <th className="py-2.5 px-3 font-bold">Status</th>
+                      <th className="py-2.5 px-3 font-bold">Audit Details</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-mono">
+                    {sagaTimeline.map((item, idx) => (
+                      <tr key={idx} className={item.isCompensation ? "bg-amber-500/5" : ""}>
+                        <td className="py-2 px-3">{item.step}</td>
+                        <td className="py-2 px-3 font-bold">{item.service}</td>
+                        <td className="py-2 px-3">{item.action}</td>
+                        <td className="py-2 px-3">
+                          {item.isCompensation ? (
+                            <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-500 font-bold text-[10px]">
+                              COMPENSATION
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-500 font-bold text-[10px]">
+                              FORWARD
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3">
+                          {item.status === "SUCCESS" && <span className="text-emerald-500 font-bold">SUCCESS</span>}
+                          {item.status === "FAILED" && <span className="text-rose-500 font-bold">FAILED</span>}
+                          {item.status === "COMPENSATED" && <span className="text-amber-500 font-bold">COMPENSATED</span>}
+                        </td>
+                        <td className="py-2 px-3 text-[11px] text-slate-500 dark:text-slate-400">{item.details}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Part 2: Idempotency-Key Fingerprint Workbench */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Lock className="text-indigo-600" size={16} /> RFC 9421 Idempotency Key Deduplication Engine
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Guarantees that network retry floods (e.g. user double-clicking Submit or mobile reconnects) never result in duplicate billing.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50 space-y-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Idempotency-Key Header:
+                  </label>
+                  <input
+                    type="text"
+                    value={idempKey}
+                    onChange={(e) => setIdempKey(e.target.value)}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-mono dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-2 block">
+                    Transaction Amount ($):
+                  </label>
+                  <input
+                    type="number"
+                    value={idempAmount}
+                    onChange={(e) => setIdempAmount(Number(e.target.value))}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-mono dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50 flex flex-col justify-between space-y-2">
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Test Scenarios:</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Send fresh request, replay identical request, or simulate malicious payload alteration using the same idempotency key.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleVerifyIdempotency("fresh")}
+                      disabled={isTestingIdemp}
+                      className="rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 text-xs font-bold shadow-sm transition"
+                    >
+                      1. Fresh Initial Call (201 Created)
+                    </button>
+                    <button
+                      onClick={() => handleVerifyIdempotency("replay")}
+                      disabled={isTestingIdemp}
+                      className="rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 text-xs font-bold shadow-sm transition"
+                    >
+                      2. Duplicate Replay (200 Cached HIT)
+                    </button>
+                    <button
+                      onClick={() => handleVerifyIdempotency("tamper")}
+                      disabled={isTestingIdemp}
+                      className="rounded-lg bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 text-xs font-bold shadow-sm transition"
+                    >
+                      3. Altered Payload Conflict (422 Tamper)
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {idempResult && (
+                <div className="rounded-xl bg-slate-950 p-4 font-mono text-xs text-slate-300 border border-slate-800 space-y-2 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-indigo-400 font-bold uppercase">
+                      Backend Atomic Response: {idempResult.status}
+                    </span>
+                    <span className="text-[10px] text-slate-500">RFC 9421 Compliance</span>
+                  </div>
+                  <pre className="text-[11px] text-slate-300 overflow-x-auto p-2 bg-slate-900 rounded-lg">
+                    {JSON.stringify(idempResult, null, 2)}
+                  </pre>
+                  <p className="text-[11px] text-emerald-400">
+                    💡 {idempResult.message || idempResult.error}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 9: MULTI-REGION CRDT & VECTOR CLOCKS */}
+      {activeTab === "crdt" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Globe className="text-purple-500" size={18} /> Multi-Region Active-Active CRDTs & Vector Clock Conflict Resolver
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Conflict-Free Replicated Data Types guarantee mathematical convergence across multi-master global clouds without synchronous cross-Atlantic locks.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSplitBrainActive(!splitBrainActive)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                    splitBrainActive
+                      ? "bg-rose-500/20 text-rose-400 border-rose-500 animate-pulse"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700"
+                  }`}
+                >
+                  <ShieldAlert size={13} />
+                  {splitBrainActive ? "Partition Active (Split-Brain)" : "Simulate Network Partition"}
+                </button>
+                <button
+                  onClick={handleSyncCrdt}
+                  disabled={isSyncingCrdt}
+                  className="rounded-xl bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 shadow"
+                >
+                  <RefreshCw className={isSyncingCrdt ? "animate-spin" : ""} size={13} />
+                  Gossip Sync CRDTs
+                </button>
+              </div>
+            </div>
+
+            {/* 3 Regional Master Nodes */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              {crdtRegions.map((region) => {
+                const regionalVal = region.counterP - region.counterN;
+                const isSevered = splitBrainActive && region.id === "us-east-1";
+
+                return (
+                  <div
+                    key={region.id}
+                    className={`rounded-2xl border p-4 transition space-y-3 ${
+                      isSevered
+                        ? "border-rose-500/50 bg-rose-500/5 dark:bg-rose-950/20"
+                        : "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Server size={14} className="text-purple-500" /> {region.label}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isSevered
+                          ? "bg-rose-500/20 text-rose-400"
+                          : "bg-emerald-500/20 text-emerald-400"
+                      }`}>
+                        {isSevered ? "Severed from EU" : "Healthy"}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800 space-y-1 text-center">
+                      <p className="text-[11px] text-slate-500 font-medium">Local PN-Counter State</p>
+                      <p className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                        {regionalVal}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        P: +{region.counterP} | N: -{region.counterN}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleUpdateCrdtRegion(region.id, "P", 1)}
+                        className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition"
+                      >
+                        + Incr (+1)
+                      </button>
+                      <button
+                        onClick={() => handleUpdateCrdtRegion(region.id, "N", 1)}
+                        className="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition"
+                      >
+                        - Decr (-1)
+                      </button>
+                    </div>
+
+                    <div className="rounded-lg bg-slate-950 p-2.5 font-mono text-[11px] text-slate-300 border border-slate-800 space-y-1">
+                      <span className="text-[10px] text-purple-400 uppercase font-bold">Vector Clock V_t</span>
+                      <p className="text-slate-400">
+                        ⟨US: {region.vectorClock["us-east"]}, EU: {region.vectorClock["eu-west"]}, AP: {region.vectorClock["ap-south"]}⟩
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Convergence Result & Mathematics Panel */}
+            <div className="rounded-xl bg-slate-950 p-5 font-mono text-xs text-slate-300 border border-slate-800 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                  Mathematical Join-Semilattice Convergence State
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Join Supremum Function: ⊔(A, B, C)
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <p className="text-slate-400 text-[11px]">Converged Counter Value (All 3 Continents):</p>
+                  <p className="text-3xl font-black text-emerald-400">
+                    {crdtConvergedResult.convergedValue}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Value = max(P_all) - max(N_all) = {Math.max(...crdtRegions.map((r) => r.counterP))} - {Math.max(...crdtRegions.map((r) => r.counterN))} = {crdtConvergedResult.convergedValue}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-slate-400 text-[11px]">Global Converged Vector Clock:</p>
+                  <p className="text-xl font-bold text-sky-400">
+                    ⟨US: {crdtConvergedResult.convergedClock["us-east"]}, EU: {crdtConvergedResult.convergedClock["eu-west"]}, AP: {crdtConvergedResult.convergedClock["ap-south"]}⟩
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Partial Order: Mathematically monotonic, commutative, and idempotent. Zero data loss during split-brain reconnect.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 10: DATABASE SHARDING & SCATTER-GATHER */}
+      {activeTab === "sharding" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Shuffle className="text-emerald-600" size={18} /> Database Horizontal Sharding & Scatter-Gather Engine
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Partition 100M+ records across 4 cluster shards. Benchmark single-shard lookups vs cross-shard scatter-gather fanout penalties.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleStartResharding}
+                  disabled={isResharding}
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 text-xs font-bold transition flex items-center gap-1.5 shadow"
+                >
+                  <RefreshCw className={isResharding ? "animate-spin" : ""} size={13} />
+                  {isResharding ? "Resharding in Progress..." : "Simulate Zero-Downtime Cluster Expansion (4 to 8 Shards)"}
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Shard Nodes Cards */}
+            <div className="grid gap-3 sm:grid-cols-4">
+              {[
+                { name: "shard-us-primary-0", region: "us-east-1", records: "25.4M", disk: 68, host: "10.0.1.10" },
+                { name: "shard-us-primary-1", region: "us-east-1", records: "26.1M", disk: 71, host: "10.0.1.11" },
+                { name: "shard-eu-primary-0", region: "eu-west-1", records: "24.8M", disk: 64, host: "10.0.2.10" },
+                { name: "shard-ap-primary-0", region: "ap-southeast-1", records: "25.2M", disk: 66, host: "10.0.3.10" }
+              ].map((shard, idx) => {
+                const isSelected = shardingResult?.targetShard?.name === shard.name || shardingResult?.targetShard === "ALL_SHARDS";
+
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-2xl border p-4 transition space-y-2 ${
+                      isSelected
+                        ? "border-emerald-500 bg-emerald-50/50 dark:border-emerald-500 dark:bg-emerald-950/20 shadow-md"
+                        : "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-slate-900 dark:text-white font-mono">{shard.name}</span>
+                      <span className="text-[10px] text-slate-500">{shard.region}</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] text-slate-600 dark:text-slate-400">
+                        <span>Records:</span>
+                        <strong className="text-slate-900 dark:text-white">{shard.records}</strong>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-slate-600 dark:text-slate-400">
+                        <span>Disk Used:</span>
+                        <strong className="text-slate-900 dark:text-white">{shard.disk}%</strong>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${shard.disk}%` }} />
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-mono text-center pt-1">
+                      IP: {shard.host}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Zero Downtime Resharding Progress */}
+            {reshardingStep > 0 && (
+              <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4 space-y-2 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                  <span>Zero-Downtime Migration: Scaling 4 Shards → 8 Shards</span>
+                  <span>Phase {reshardingStep} of 4</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-[10px] font-mono">
+                  <div className={`p-2 rounded border text-center ${reshardingStep >= 1 ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" : "bg-slate-800 border-slate-700 text-slate-500"}`}>
+                    1. Dual-Writes
+                  </div>
+                  <div className={`p-2 rounded border text-center ${reshardingStep >= 2 ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" : "bg-slate-800 border-slate-700 text-slate-500"}`}>
+                    2. CDC Backfill
+                  </div>
+                  <div className={`p-2 rounded border text-center ${reshardingStep >= 3 ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" : "bg-slate-800 border-slate-700 text-slate-500"}`}>
+                    3. Shadow Reads
+                  </div>
+                  <div className={`p-2 rounded border text-center ${reshardingStep >= 4 ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" : "bg-slate-800 border-slate-700 text-slate-500"}`}>
+                    4. Cutover 100%
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Query Dispatcher Workbench */}
+            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Sharding Key (user_id):
+                  </label>
+                  <input
+                    type="text"
+                    value={shardingKeyInput}
+                    onChange={(e) => setShardingKeyInput(e.target.value)}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-mono dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 flex items-end gap-2">
+                  <button
+                    onClick={() => handleRouteSharding("POINT_LOOKUP")}
+                    disabled={isRoutingSharding}
+                    className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 text-xs shadow-sm transition"
+                  >
+                    Point Lookup (WHERE user_id = :id)
+                  </button>
+                  <button
+                    onClick={() => handleRouteSharding("SCATTER_GATHER")}
+                    disabled={isRoutingSharding}
+                    className="flex-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-3 text-xs shadow-sm transition"
+                  >
+                    Scatter-Gather (WHERE status = 'PENDING')
+                  </button>
+                </div>
+              </div>
+
+              {/* Sharding Result Output */}
+              {shardingResult && (
+                <div className="rounded-xl bg-slate-950 p-4 font-mono text-xs text-slate-300 border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-emerald-400">
+                    <span>Query Type: {shardingResult.queryType}</span>
+                    <span>Latency: {shardingResult.latencyMs}ms</span>
+                  </div>
+                  <p className="text-slate-300">{shardingResult.summary}</p>
+                  <div className="flex gap-4 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                    <span>Shards Contacted: <strong className="text-white">{shardingResult.shardsContacted}</strong></span>
+                    {shardingResult.aggregationOverheadMs && (
+                      <span>Scatter-Gather Overhead: <strong className="text-rose-400">+{shardingResult.aggregationOverheadMs}ms</strong></span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 11: CACHE STAMPEDE & THUNDERING HERD DEFENSE */}
+      {activeTab === "stampede" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Flame className="text-rose-500" size={18} /> Cache Stampede & Thundering Herd Defense Lab
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Simulate 1,000 concurrent Virtual Users hitting a hot cache key at the moment of TTL expiration.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
+                  stampedeResult?.systemState === "OPTIMAL_ZERO_STAMPEDE"
+                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                    : stampedeResult?.systemState === "PROTECTED"
+                    ? "bg-sky-500/10 text-sky-500 border-sky-500/30"
+                    : "bg-rose-500/10 text-rose-500 border-rose-500/30 animate-pulse"
+                }`}>
+                  Health: {stampedeResult?.systemState}
+                </span>
+              </div>
+            </div>
+
+            {/* Defense Strategy Cards */}
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  id: "naive_ttl",
+                  title: "1. Naive Fixed TTL",
+                  badge: "Vulnerable to Crash",
+                  desc: "Zero protection. When the 60s TTL expires, all 1,000 concurrent requests miss cache and slam the database simultaneously.",
+                  color: "border-rose-500/40 hover:border-rose-500"
+                },
+                {
+                  id: "mutex_lock",
+                  title: "2. Distributed Mutex (Redlock)",
+                  badge: "Protected via Locking",
+                  desc: "SETNX atomic lock. Exactly 1 worker regenerates the cache key while 999 requests wait on the lock or read fallback.",
+                  color: "border-sky-500/40 hover:border-sky-500"
+                },
+                {
+                  id: "xfetch",
+                  title: "3. Probabilistic Early Expiration (XFetch)",
+                  badge: "Zero Downtime (FAANG Standard)",
+                  desc: "Logarithmic probability formulation refreshes key asynchronously before expiration. 0 requests hit database.",
+                  color: "border-emerald-500/40 hover:border-emerald-500"
+                }
+              ].map((strat) => (
+                <button
+                  key={strat.id}
+                  onClick={() => handleSimulateStampede(strat.id)}
+                  className={`rounded-2xl border p-4 text-left transition space-y-2 ${
+                    stampedeStrategy === strat.id
+                      ? "bg-slate-900 border-slate-950 text-white shadow-xl dark:bg-slate-800"
+                      : `bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-900/60 dark:border-slate-800 dark:text-slate-200 ${strat.color}`
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span>{strat.title}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-white/10">{strat.badge}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {strat.desc}
+                  </p>
+                  <div className="pt-2 text-xs font-bold text-indigo-500 flex items-center gap-1">
+                    <Play size={12} /> Run 1,000 VU Benchmark
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Real-time Benchmark Metrics Display */}
+            {stampedeResult && (
+              <div className="grid gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                  <p className="text-[11px] text-slate-500">Virtual Users (RPS):</p>
+                  <p className="text-xl font-black text-slate-900 dark:text-white">1,000 VUs</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                  <p className="text-[11px] text-slate-500">DB Queries Slammed:</p>
+                  <p className={`text-xl font-black ${stampedeResult.dbQueries > 10 ? "text-rose-600" : "text-emerald-500"}`}>
+                    {stampedeResult.dbQueries} queries
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                  <p className="text-[11px] text-slate-500">Cache Hits:</p>
+                  <p className="text-xl font-black text-sky-500">{stampedeResult.cacheHits} / 1000</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-800/50">
+                  <p className="text-[11px] text-slate-500">Average Latency:</p>
+                  <p className={`text-xl font-black ${stampedeResult.avgLatencyMs > 100 ? "text-rose-600" : "text-emerald-500"}`}>
+                    {stampedeResult.avgLatencyMs}ms
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Explanation & Logarithm Formula */}
+            <div className="rounded-xl bg-slate-950 p-4 font-mono text-xs text-slate-300 border border-slate-800 space-y-2">
+              <span className="text-[11px] text-amber-400 uppercase font-bold">
+                Algorithmic Principle: Optimal Probabilistic Cache Expiration (XFetch)
+              </span>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Condition: -β · δ · ln(rand()) &gt; (TTL - elapsed). Where β &gt; 0 is the aggression factor, δ is compute time, and rand() ∈ (0, 1]. As the key approaches expiration, the probability of background recomputation smoothly approaches 1.0, ensuring 0 cache misses and 0 stampedes under extreme concurrency.
+              </p>
             </div>
           </div>
         </div>

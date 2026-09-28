@@ -219,7 +219,7 @@ export default function AppLayout() {
                     <Server size={17} className="mt-0.5 text-sky-500" />
                     <div>
                       <p className="text-xs font-bold">Enterprise Scale & SRE Hub</p>
-                      <p className="text-[11px] text-slate-500">OpenTelemetry, Hashing & SRE Runbook</p>
+                      <p className="text-[11px] text-slate-500">Sagas, CRDTs, Sharding & Telemetry</p>
                     </div>
                   </NavLink>
                   <NavLink to="/query-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
