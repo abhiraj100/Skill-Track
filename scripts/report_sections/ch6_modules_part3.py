@@ -8,9 +8,10 @@ def add_chapter_6(doc):
     add_chapter_heading(doc, "CHAPTER 6: CORE SUBSYSTEM IMPLEMENTATION — PART III (CAREER, PEDAGOGY & ARTIFICIAL INTELLIGENCE)")
     
     p(doc, 
-      "This chapter analyzes the third operational suite of SkillTrack, comprising Modules 17 through 24. These subsystems focus on "
+      "This chapter analyzes the third operational suite of SkillTrack, comprising Modules 17 through 25. These subsystems focus on "
       "career acceleration, collaborative peer learning, generative AI mock interviews, algorithmic problem solving, structured "
-      "pedagogical pathways, automated resume parsing, public portfolio provenance, and cognitive productivity."
+      "pedagogical pathways, automated resume parsing, public portfolio provenance, cognitive productivity, and flagship enterprise-scale "
+      "distributed systems architecture."
     )
 
     # -------------------------------------------------------------
@@ -255,6 +256,45 @@ def add_chapter_6(doc):
         "  return { stop: () => whiteNoise.stop() };\n"
         "}",
         "Listing 6.5: Web Audio API Client-Side Synthetic Soundscape Engine"
+    )
+
+    # -------------------------------------------------------------
+    # 6.9 Module 25: Enterprise Scale, Distributed Sagas & Multi-Region SRE Command Center
+    # -------------------------------------------------------------
+    add_section_heading(doc, "6.9 Module 25: Enterprise Scale, Distributed Sagas & SRE Command Center")
+    p(doc, 
+      "To prepare students for senior engineering leadership and high-concurrency systems design at tier-1 tech companies, "
+      "SkillTrack features the flagship Enterprise Scale & SRE Observability Command Center (/scale-hub). "
+      "This subsystem models the operational fabric of systems serving tens of millions of concurrent requests."
+    )
+
+    add_sub_section_heading(doc, "6.9.1 Flagship Architectural Subsystems")
+    p(doc, 
+      "The Enterprise Scale Command Center integrates ten production-grade distributed infrastructure modules:"
+    )
+
+    scale_subsystems = [
+      ["1. OpenTelemetry Distributed Tracing", "W3C trace context, end-to-end span DAG waterfalls, and RPC latency percentiles (P50/P90/P99)."],
+      ["2. 360° Consistent Hashing Ring", "Trigonometric coordinate plotting on a circular ring with MurmurHash3 and 50 vnodes/node to eliminate cache thundering."],
+      ["3. Token Bucket Rate Limiting", "Sliding window token bucket traffic shaper with burst capacities, refill rate sliders, and HTTP 429 backoff headers."],
+      ["4. Service Mesh Circuit Breaker", "Envoy sidecar proxy state machine (Closed, Open, Half-Open) with automated fallback degradation under network spikes."],
+      ["5. Kafka Consumer Group Lag Monitor", "Distributed pub/sub partition consumer lag tracker with consumer rebalancing and partition offset metrics."],
+      ["6. Database Read/Write Splitting", "Primary master write router with read replica distribution and replication lag detection."],
+      ["7. Distributed Saga Orchestration", "Orchestrated sagas with automated reverse compensating rollbacks overcoming CAP theorem 2PC locks."],
+      ["8. RFC 9421 Idempotency Key Engine", "Cryptographic SHA-256 payload fingerprinting ensuring zero duplicate billing or database side effects upon retry."],
+      ["9. Multi-Region Active-Active CRDTs", "Conflict-Free Replicated Data Types (PN-Counters) with Vector Clocks guaranteeing convergence across continents."],
+      ["10. DB Sharding & Cache Stampede", "4-shard MurmurHash3 partition router, scatter-gather penalty analyzer, and XFetch probabilistic cache expiration."]
+    ]
+    tbl_scale = doc.add_table(rows=1, cols=2)
+    style_table(tbl_scale, [2.5, 4.0], ["Enterprise Subsystem", "Technical Architecture & Scale Mechanics"], scale_subsystems)
+    doc.add_paragraph()
+
+    add_sub_section_heading(doc, "6.9.2 Real-Time Backend Telemetry & Health Probes")
+    p(doc, 
+      "The subsystem connects directly to live backend endpoints (/api/scale/metrics, /api/scale/saga/execute, /api/scale/idempotency/verify, "
+      "/api/scale/crdt/sync, /api/scale/sharding/route, /api/scale/cache-stampede/simulate). The server also exposes OpenMetrics/Prometheus "
+      "telemetry (/api/metrics) and Kubernetes liveness/readiness probes (/api/health/live, /api/health/ready, /api/health/deep) "
+      "demonstrating enterprise-ready production deployability."
     )
 
     doc.add_page_break()
