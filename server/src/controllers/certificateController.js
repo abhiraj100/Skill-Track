@@ -117,3 +117,54 @@ export const verifyCertificate = async (req, res, next) => {
     next(error);
   }
 };
+
+export const batchVerifyCertificates = async (req, res, next) => {
+  try {
+    const { queries = [] } = req.body;
+    if (!Array.isArray(queries) || queries.length === 0) {
+      return res.status(400).json({ success: false, message: "Provide an array of certificate IDs or hashes" });
+    }
+
+    const cleanQueries = queries.map((q) => String(q).trim()).filter(Boolean);
+    const upperQueries = cleanQueries.map((q) => q.toUpperCase());
+    const lowerQueries = cleanQueries.map((q) => q.toLowerCase());
+
+    const matchedCertificates = await Certificate.find({
+      $or: [
+        { certificateId: { $in: upperQueries } },
+        { verificationHash: { $in: lowerQueries } }
+      ]
+    }).populate("course", "title category instructor duration");
+
+    // Compute Merkle Root across the batch
+    const leafHashes = matchedCertificates.map((c) =>
+      crypto.createHash("sha256").update(`${c.certificateId}:${c.verificationHash}:${c.issueDate}`).digest("hex")
+    );
+
+    let merkleRoot = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    if (leafHashes.length > 0) {
+      merkleRoot = leafHashes.reduce((acc, h) =>
+        crypto.createHash("sha256").update(acc + h).digest("hex")
+      );
+    }
+
+    res.json({
+      success: true,
+      batchSize: queries.length,
+      matchedCount: matchedCertificates.length,
+      merkleRoot,
+      verificationAuthority: "SkillTrack Enterprise Cryptographic CA",
+      verifiedAt: new Date().toISOString(),
+      certificates: matchedCertificates.map((c) => ({
+        certificateId: c.certificateId,
+        studentName: c.studentName,
+        courseTitle: c.courseTitle,
+        grade: c.grade,
+        issueDate: c.issueDate,
+        verificationHash: c.verificationHash
+      }))
+    });
+  } catch (error) {
+    next(error);
+  }
+};
