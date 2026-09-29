@@ -41,6 +41,8 @@ import PerfAudit from "./pages/PerfAudit";
 import ErdStudio from "./pages/ErdStudio";
 import DesignSystemStudio from "./pages/DesignSystemStudio";
 import EnterpriseScaleHub from "./pages/EnterpriseScaleHub";
+import QueueStudio from "./pages/QueueStudio";
+import IamStudio from "./pages/IamStudio";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -143,6 +145,8 @@ function Router() {
         <Route path="/erd-studio" element={<ErdStudio />} />
         <Route path="/design-system" element={<DesignSystemStudio />} />
         <Route path="/scale-hub" element={<EnterpriseScaleHub />} />
+        <Route path="/queue-studio" element={<QueueStudio />} />
+        <Route path="/iam-studio" element={<IamStudio />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

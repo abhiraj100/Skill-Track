@@ -102,6 +102,26 @@ export const COMMAND_ITEMS = [
     keywords: "cache stampede thundering herd xfetch probabilistic early expiration redis redlock ttl dogpiling"
   },
   {
+    id: "queue-studio",
+    title: "Distributed Task Queue Studio",
+    category: "Flagship Studios",
+    desc: "Redis Streams BullMQ worker fleet, priority channels (VIP/Bulk), lease recovery, and DLQ replay.",
+    path: "/queue-studio",
+    icon: Boxes,
+    color: "text-amber-500 bg-amber-50 dark:bg-amber-950/50",
+    keywords: "queue task worker fleet bullmq celery redis streams dlq dead letter queue lease timeout stalled job"
+  },
+  {
+    id: "iam-studio",
+    title: "Zero-Trust IAM & OPA Policy Studio",
+    category: "Flagship Studios",
+    desc: "Multi-tenant tenant isolation, least-privilege RBAC/ABAC matrix, and Open Policy Agent Rego engine.",
+    path: "/iam-studio",
+    icon: ShieldCheck,
+    color: "text-purple-500 bg-purple-50 dark:bg-purple-950/50",
+    keywords: "iam zero trust rbac abac opa open policy agent rego least privilege fido2 mfa multi tenant authz"
+  },
+  {
     id: "system-design",
     title: "System Design Arena",
     category: "Flagship Studios",

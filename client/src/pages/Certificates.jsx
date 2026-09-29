@@ -6,7 +6,10 @@ import {
   Copy,
   Download,
   ExternalLink,
+  FileCode,
   FileText,
+  GitBranch,
+  Layers,
   Medal,
   Printer,
   QrCode,
@@ -65,7 +68,12 @@ export default function Certificates() {
   const [verifyCode, setVerifyCode] = useState("");
   const [verifyResult, setVerifyResult] = useState(null);
   const [verifying, setVerifying] = useState(false);
-  const [tab, setTab] = useState("my-certs"); // 'my-certs' | 'claim' | 'verifier'
+  const [tab, setTab] = useState("my-certs"); // 'my-certs' | 'claim' | 'verifier' | 'merkle-verifier'
+  const [batchInput, setBatchInput] = useState(
+    "ST-2026-DIST-8842\nST-2026-ALGO-4190\nST-2026-SRE-1092\nST-INVALID-9999"
+  );
+  const [batchResult, setBatchResult] = useState(null);
+  const [batchVerifying, setBatchVerifying] = useState(false);
 
   // Claim Certificate Simulator State
   const [claimCourse, setClaimCourse] = useState("Fullstack React & Node Architecture");
@@ -187,6 +195,29 @@ export default function Certificates() {
     toast.success("Official Certificate minted and signed!");
   };
 
+  const runBatchVerification = async () => {
+    const queries = batchInput
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (queries.length === 0) {
+      toast.error("Please enter at least one Certificate ID or Hash to verify");
+      return;
+    }
+
+    setBatchVerifying(true);
+    try {
+      const { data } = await api.post("/certificates/batch-verify", { queries });
+      setBatchResult(data);
+      toast.success(`Batch verified ${data.totalQueried} credentials with Merkle root computation!`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to batch verify credentials");
+    } finally {
+      setBatchVerifying(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -202,7 +233,7 @@ export default function Certificates() {
               Certificates & Cryptographic Verification
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-amber-50">
-              Earn and share cryptographically signed course completion credentials. Employers, recruiters, and academic institutions can verify tamper-proof authenticity via SHA-256 signatures.
+              Earn and share cryptographically signed course completion credentials. Employers, recruiters, and academic institutions can verify tamper-proof authenticity via SHA-256 signatures and batch Merkle roots.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -229,6 +260,14 @@ export default function Certificates() {
               }`}
             >
               <ShieldCheck size={14} /> Public Verifier
+            </button>
+            <button
+              onClick={() => setTab("merkle-verifier")}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-1.5 ${
+                tab === "merkle-verifier" ? "bg-white text-amber-800 shadow" : "bg-white/10 text-white hover:bg-white/20"
+              }`}
+            >
+              <Layers size={14} /> Recruiter Merkle Verifier
             </button>
           </div>
         </div>
@@ -488,6 +527,204 @@ export default function Certificates() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 4: RECRUITER MERKLE BATCH VERIFIER */}
+      {tab === "merkle-verifier" && (
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5 dark:border-slate-800">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  <Layers size={13} />
+                  <span>RFC 6962 Cryptographic Batch Auditing</span>
+                </div>
+                <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">
+                  Recruiter & Enterprise Merkle Verifier
+                </h2>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
+                  Bulk verify up to 100 graduate credentials in a single round-trip. The backend constructs a Merkle Hash Tree over all credential records, generating a unified SHA-256 Merkle Root for immutable, tamper-evident audit trails.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBatchInput("ST-2026-DIST-8842\nST-2026-ALGO-4190\nST-2026-SRE-1092")
+                  }
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800 transition"
+                >
+                  Load Valid Cohort (3)
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBatchInput(
+                      "ST-2026-DIST-8842\nST-2026-ALGO-4190\nST-2026-SRE-1092\nST-TAMPERED-FAANG-HACK"
+                    )
+                  }
+                  className="rounded-xl border border-amber-300/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-600 hover:bg-amber-500/20 dark:text-amber-300 transition"
+                >
+                  Simulate Tampered Anomaly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBatchInput("")}
+                  className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 transition"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Batch Certificate Identifiers or Hashes (One Per Line)
+              </label>
+              <textarea
+                rows={4}
+                value={batchInput}
+                onChange={(e) => setBatchInput(e.target.value)}
+                placeholder="Enter certificate IDs (e.g., ST-2026-DIST-8842) or SHA-256 hashes..."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-4 font-mono text-xs text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+              />
+
+              <div className="flex justify-end">
+                <button
+                  onClick={runBatchVerification}
+                  disabled={batchVerifying}
+                  className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-700 to-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-amber-600/20 hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 transition"
+                >
+                  <Layers size={14} className={batchVerifying ? "animate-spin" : ""} />
+                  {batchVerifying ? "Computing Merkle Tree Root..." : "Execute Merkle Batch Audit"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* BATCH RESULTS VIEW */}
+          {batchResult && (
+            <div className="space-y-6">
+              {/* Merkle Root Certificate Digest */}
+              <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-6 text-white shadow-xl backdrop-blur-xl">
+                <div className="absolute -right-20 -bottom-20 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 px-3 py-1 font-mono text-[10px] font-bold text-amber-300">
+                      <GitBranch size={12} /> BATCH MERKLE ROOT CALCULATED
+                    </span>
+                    <h3 className="text-lg font-black tracking-tight text-white sm:text-xl">
+                      Cryptographic Batch Provenance Digest
+                    </h3>
+                    <p className="max-w-2xl font-mono text-xs text-amber-200/90 break-all select-all">
+                      {batchResult.merkleRoot}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(batchResult.merkleRoot);
+                        toast.success("Merkle Root hash copied to clipboard!");
+                      }}
+                      className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-2 text-xs font-bold text-white hover:bg-white/20 transition"
+                    >
+                      <Copy size={13} /> Copy Root
+                    </button>
+                    <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-2 text-center">
+                      <p className="text-[10px] text-slate-400 font-mono">Status</p>
+                      <p className="text-sm font-black text-emerald-400">
+                        {batchResult.validCount} / {batchResult.totalQueried} Valid
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 border-t border-white/10 pt-3 text-[11px] text-slate-400 flex flex-wrap justify-between items-center gap-2 font-mono">
+                  <span>Audit Timestamp: {new Date(batchResult.timestamp).toLocaleString()}</span>
+                  <span>Algorithm: SHA-256 Merkle Binary Hash Tree (RFC 6962)</span>
+                </div>
+              </div>
+
+              {/* Individual Credentials Table */}
+              <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/80 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+                <div className="border-b border-slate-200 p-5 dark:border-slate-800 flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Queried Credentials Audit Breakdown ({batchResult.results?.length || 0})
+                  </h4>
+                  <span className="text-xs font-mono text-slate-500">
+                    Tamper Protection: Active
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-slate-200 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
+                      <tr>
+                        <th className="p-4">Query ID</th>
+                        <th className="p-4">Verification Status</th>
+                        <th className="p-4">Candidate / Course</th>
+                        <th className="p-4">Leaf Hash $H_i$</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
+                      {batchResult.results?.map((item, idx) => (
+                        <tr
+                          key={idx}
+                          className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
+                        >
+                          <td className="p-4 font-bold text-slate-800 dark:text-slate-200">
+                            {item.query}
+                          </td>
+                          <td className="p-4">
+                            {item.found ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                <CheckCircle2 size={12} /> AUTHENTIC
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                                <XCircle size={12} /> INVALID / TAMPERED
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4 font-sans">
+                            {item.certificate ? (
+                              <div>
+                                <p className="font-bold text-slate-900 dark:text-white">
+                                  {item.certificate.studentName}
+                                </p>
+                                <p className="text-[11px] text-slate-500">
+                                  {item.certificate.courseTitle} ({item.certificate.grade})
+                                </p>
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 italic">No record found in ledger</span>
+                            )}
+                          </td>
+                          <td className="p-4 text-[10px] text-slate-500 max-w-xs truncate">
+                            {item.leafHash}
+                          </td>
+                          <td className="p-4 text-right font-sans">
+                            {item.certificate && (
+                              <button
+                                onClick={() => setSelectedCert(item.certificate)}
+                                className="rounded-xl bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600 hover:bg-amber-500/20 dark:text-amber-400 transition"
+                              >
+                                View Canvas
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>

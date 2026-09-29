@@ -132,7 +132,7 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/queue-studio", "/iam-studio", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester"].some((p) =>
@@ -220,6 +220,20 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Enterprise Scale & SRE Hub</p>
                       <p className="text-[11px] text-slate-500">Sagas, CRDTs, Sharding & Telemetry</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/queue-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Boxes size={17} className="mt-0.5 text-amber-500" />
+                    <div>
+                      <p className="text-xs font-bold">Distributed Task Queue</p>
+                      <p className="text-[11px] text-slate-500">Redis BullMQ worker fleet & DLQ</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/iam-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <ShieldCheck size={17} className="mt-0.5 text-purple-500" />
+                    <div>
+                      <p className="text-xs font-bold">Zero-Trust IAM Studio</p>
+                      <p className="text-[11px] text-slate-500">OPA Rego ABAC & Least-Privilege</p>
                     </div>
                   </NavLink>
                   <NavLink to="/query-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
