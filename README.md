@@ -13,7 +13,10 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 25-module flagship training arena launcher
+- Responsive dashboard with 27-module flagship training arena launcher
+- Distributed Asynchronous Task Queue & Worker Fleet Studio: Redis Streams and BullMQ-style priority queues (VIP, Normal, Bulk), multi-pod worker concurrency dials (1 to 16 jobs/pod), leased-lock heartbeat recovery for orphaned jobs, Dead-Letter Queue (DLQ) replay, and Chaos SIGKILL node crash injection (`/queue-studio`)
+- Enterprise Zero-Trust IAM & OPA Policy Studio: Declarative Open Policy Agent (OPA) architecture, multi-tenant isolation fences, network CIDR geofencing, managed device posture verification (MDM, disk encryption), FIDO2 step-up MFA challenge triggers, and live Rego compiler (`/iam-studio`)
+- Recruiter Merkle Batch Credential Verifier: RFC 6962 binary Merkle tree engine within Certificates subsystem, computing an aggregate SHA-256 Merkle Root digest across candidate cohorts for tamper-proof bulk verification (`/certificates`)
 - Enterprise Scale, Distributed Sagas & SRE Command Center: 10-module distributed systems command center featuring OpenTelemetry APM span waterfalls, 360° trigonometric consistent hashing ring with MurmurHash3, token bucket traffic shaper, Envoy circuit breaker mesh, Kafka partition lag rebalancer, database read/write replica lag routing, distributed Saga orchestrator with reverse compensating rollbacks, RFC 9421 Idempotency Key deduplication validator, multi-region active-active CRDTs with vector clocks, 4-node database horizontal sharding router, and XFetch probabilistic early cache expiration (`/scale-hub`)
 - API Benchmark & Concurrency Load Testing Studio: Simulate up to 1,000 concurrent Virtual Users (VUs), live request rate (RPS), P50/P90/P95/P99 latency percentiles, bottleneck diagnostic engine, and 1-click runnable k6 script export (`/load-tester`)
 - Web Vitals & Frontend Performance Audit Studio: Core Web Vitals diagnostic (LCP, INP, CLS, FCP, TTFB), asset waterfall timeline, and 1-click remediation toggles (Code Splitting, Image formats, Font preload, Critical CSS) with real-time score updates (`/perf-audit`)
