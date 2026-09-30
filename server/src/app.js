@@ -20,6 +20,8 @@ import communityRoutes from "./routes/communityRoutes.js";
 import scaleRoutes from "./routes/scaleRoutes.js";
 import queueRoutes from "./routes/queueRoutes.js";
 import iamRoutes from "./routes/iamRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
+import chaosRoutes from "./routes/chaosRoutes.js";
 import { telemetryMiddleware, rateLimiter } from "./middleware/telemetryMiddleware.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -155,7 +157,9 @@ const apiIndex = (_req, res) => {
       "/api/community",
       "/api/scale",
       "/api/queue",
-      "/api/iam"
+      "/api/iam",
+      "/api/events",
+      "/api/chaos"
     ]
   });
 };
@@ -178,7 +182,15 @@ app.get("/api/health", (_req, res) => {
 app.use("/api", rateLimiter({ windowMs: 60000, maxRequests: 300 }));
 
 app.use("/api", (req, res, next) => {
-  if (req.path.startsWith("/scale") || req.path.startsWith("/queue") || req.path.startsWith("/iam") || req.path.startsWith("/health") || req.path === "/metrics") {
+  if (
+    req.path.startsWith("/scale") ||
+    req.path.startsWith("/queue") ||
+    req.path.startsWith("/iam") ||
+    req.path.startsWith("/events") ||
+    req.path.startsWith("/chaos") ||
+    req.path.startsWith("/health") ||
+    req.path === "/metrics"
+  ) {
     return next();
   }
   if (mongoose.connection.readyState === 1) return next();
@@ -204,6 +216,8 @@ app.use("/api/community", communityRoutes);
 app.use("/api/scale", scaleRoutes);
 app.use("/api/queue", queueRoutes);
 app.use("/api/iam", iamRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/chaos", chaosRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
