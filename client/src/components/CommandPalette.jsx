@@ -144,6 +144,26 @@ export const COMMAND_ITEMS = [
     keywords: "chaos monkey simian army toxiproxy fault injection packet loss latency jitter circuit breaker resilience"
   },
   {
+    id: "tracing-studio",
+    title: "Distributed Tracing & W3C Span Studio",
+    category: "Flagship Studios",
+    desc: "OpenTelemetry span waterfalls, critical path latency DAG analysis, and multi-hop RPC correlation.",
+    path: "/tracing-studio",
+    icon: Network,
+    color: "text-cyan-500 bg-cyan-50 dark:bg-cyan-950/50",
+    keywords: "distributed tracing opentelemetry jaeger zipkin w3c traceparent span waterfall latency critical path"
+  },
+  {
+    id: "canary-studio",
+    title: "Canary Deployments & Feature Flags Studio",
+    category: "Flagship Studios",
+    desc: "Progressive multi-phase rollout (10/25/50/100%), automated watchdog rollback gates, and multivariate feature flags.",
+    path: "/canary-studio",
+    icon: GitBranch,
+    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50",
+    keywords: "canary deployment rollout launchdarkly unleash argo rollouts feature flags watchdog traffic split blast radius"
+  },
+  {
     id: "system-design",
     title: "System Design Arena",
     category: "Flagship Studios",

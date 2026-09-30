@@ -16,6 +16,7 @@ import {
   Flame,
   FolderGit2,
   Gauge,
+  GitBranch,
   GitCommit,
   Globe,
   Headphones,
@@ -23,6 +24,7 @@ import {
   MapPin,
   Medal,
   MessagesSquare,
+  Network,
   Palette,
   Radio,
   Rocket,
@@ -169,6 +171,12 @@ export default function Dashboard() {
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/iam-studio">
                 Zero-Trust IAM Studio
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/tracing-studio">
+                Distributed Tracing
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/canary-studio">
+                Canary Deployments
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/system-design">
                 System Design Arena
@@ -345,7 +353,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
               {[
-                { id: "all", label: "All Studios (28)" },
+                { id: "all", label: "All Studios (31)" },
                 { id: "cloud", label: "Cloud & Scale" },
                 { id: "code", label: "Algorithms & Code" },
                 { id: "devops", label: "DevOps & SRE" }
@@ -895,6 +903,42 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-purple-600">
               Customize Tokens <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/tracing-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-indigo-100 p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-indigo-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-950 dark:text-indigo-400">
+                <Network size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">Distributed Tracing Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                W3C TraceContext DAG modeler, microsecond span waterfall Gantt chart, and automated critical path analyzer.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              Inspect Spans <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/canary-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg dark:border-emerald-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-950 dark:text-emerald-400">
+                <GitBranch size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">Canary Deployments Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Progressive traffic weight dial, automated watchdog error-gate monitoring, auto-rollback, and feature flags.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              Manage Rollouts <ArrowRight size={14} />
             </div>
           </Link>
         </div>
