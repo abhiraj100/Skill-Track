@@ -13,7 +13,9 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 29-module flagship training arena launcher
+- Responsive dashboard with 31-module flagship training arena launcher
+- Enterprise Distributed Tracing & W3C Span Waterfall Studio: W3C TraceContext DAG modeler (`traceparent: 00-traceid-spanid-flags`), microsecond Gantt waterfall visualization, automated critical path latency bottleneck calculation, component span attributes inspector, and simulated RPC anomaly injection (`/tracing-studio`)
+- Dynamic Feature Flags & Progressive Canary Deployment Studio: Progressive traffic split state machine (10% -> 25% -> 50% -> 100%), automated SRE watchdog error-gate monitoring (Error Rate > 3.5% or P99 > 350ms -> sub-second auto-rollback), simulated high-concurrency traffic bursts, and multivariate user targeting feature flags (`/canary-studio`)
 - Enterprise Event Sourcing & CQRS Audit Ledger Studio: Append-only immutable event store conforming to Martin Fowler and Greg Young patterns, cryptographic SHA-256 block linking, optimistic concurrency version fencing, zero-loss time-travel state reconstruction scrubber, snapshot compaction, and asynchronous CQRS read projections (`/event-sourcing`)
 - Chaos Engineering & Resilience Fault-Injection Simulator: Netflix Chaos Monkey and Toxiproxy fault injection (RPC latency 0-2000ms, packet loss 0-50%, downstream 503 outages, DB connection pool starvation), live resilience health score radar, Envoy/Hystrix circuit breaker state machine, and Little's Law adaptive concurrency throttling (`/chaos-studio`)
 - Distributed Asynchronous Task Queue & Worker Fleet Studio: Redis Streams and BullMQ-style priority queues (VIP, Normal, Bulk), multi-pod worker concurrency dials (1 to 16 jobs/pod), leased-lock heartbeat recovery for orphaned jobs, Dead-Letter Queue (DLQ) replay, and Chaos SIGKILL node crash injection (`/queue-studio`)
