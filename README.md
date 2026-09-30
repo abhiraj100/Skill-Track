@@ -13,7 +13,9 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 27-module flagship training arena launcher
+- Responsive dashboard with 29-module flagship training arena launcher
+- Enterprise Event Sourcing & CQRS Audit Ledger Studio: Append-only immutable event store conforming to Martin Fowler and Greg Young patterns, cryptographic SHA-256 block linking, optimistic concurrency version fencing, zero-loss time-travel state reconstruction scrubber, snapshot compaction, and asynchronous CQRS read projections (`/event-sourcing`)
+- Chaos Engineering & Resilience Fault-Injection Simulator: Netflix Chaos Monkey and Toxiproxy fault injection (RPC latency 0-2000ms, packet loss 0-50%, downstream 503 outages, DB connection pool starvation), live resilience health score radar, Envoy/Hystrix circuit breaker state machine, and Little's Law adaptive concurrency throttling (`/chaos-studio`)
 - Distributed Asynchronous Task Queue & Worker Fleet Studio: Redis Streams and BullMQ-style priority queues (VIP, Normal, Bulk), multi-pod worker concurrency dials (1 to 16 jobs/pod), leased-lock heartbeat recovery for orphaned jobs, Dead-Letter Queue (DLQ) replay, and Chaos SIGKILL node crash injection (`/queue-studio`)
 - Enterprise Zero-Trust IAM & OPA Policy Studio: Declarative Open Policy Agent (OPA) architecture, multi-tenant isolation fences, network CIDR geofencing, managed device posture verification (MDM, disk encryption), FIDO2 step-up MFA challenge triggers, and live Rego compiler (`/iam-studio`)
 - Recruiter Merkle Batch Credential Verifier: RFC 6962 binary Merkle tree engine within Certificates subsystem, computing an aggregate SHA-256 Merkle Root digest across candidate cohorts for tamper-proof bulk verification (`/certificates`)
