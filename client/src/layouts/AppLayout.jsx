@@ -18,8 +18,10 @@ import {
   Database,
   DollarSign,
   FileText,
+  Flame,
   FolderGit2,
   Gauge,
+  GitCommit,
   Globe,
   Headphones,
   LayoutDashboard,
@@ -132,10 +134,10 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/queue-studio", "/iam-studio", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/queue-studio", "/iam-studio", "/event-sourcing", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester", "/chaos-studio"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements", "/salary-radar"].some((p) =>
@@ -234,6 +236,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Zero-Trust IAM Studio</p>
                       <p className="text-[11px] text-slate-500">OPA Rego ABAC & Least-Privilege</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/event-sourcing" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <GitCommit size={17} className="mt-0.5 text-indigo-500" />
+                    <div>
+                      <p className="text-xs font-bold">Event Sourcing & CQRS</p>
+                      <p className="text-[11px] text-slate-500">Immutable ledger & time-travel</p>
                     </div>
                   </NavLink>
                   <NavLink to="/query-lab" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -400,6 +409,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">API Concurrency Load Tester</p>
                       <p className="text-[11px] text-slate-500">1,000 VUs & k6 script export</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/chaos-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Flame size={17} className="mt-0.5 text-rose-500" />
+                    <div>
+                      <p className="text-xs font-bold">Chaos & Resilience Studio</p>
+                      <p className="text-[11px] text-slate-500">Fault injection & circuit breakers</p>
                     </div>
                   </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">

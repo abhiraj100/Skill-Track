@@ -43,6 +43,8 @@ import DesignSystemStudio from "./pages/DesignSystemStudio";
 import EnterpriseScaleHub from "./pages/EnterpriseScaleHub";
 import QueueStudio from "./pages/QueueStudio";
 import IamStudio from "./pages/IamStudio";
+import EventSourcingStudio from "./pages/EventSourcingStudio";
+import ChaosStudio from "./pages/ChaosStudio";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -147,6 +149,8 @@ function Router() {
         <Route path="/scale-hub" element={<EnterpriseScaleHub />} />
         <Route path="/queue-studio" element={<QueueStudio />} />
         <Route path="/iam-studio" element={<IamStudio />} />
+        <Route path="/event-sourcing" element={<EventSourcingStudio />} />
+        <Route path="/chaos-studio" element={<ChaosStudio />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />

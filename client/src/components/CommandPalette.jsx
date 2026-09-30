@@ -24,6 +24,8 @@ import {
   Flame,
   FolderGit2,
   Gauge,
+  GitBranch,
+  GitCommit,
   Globe,
   Headphones,
   LayoutDashboard,
@@ -120,6 +122,26 @@ export const COMMAND_ITEMS = [
     icon: ShieldCheck,
     color: "text-purple-500 bg-purple-50 dark:bg-purple-950/50",
     keywords: "iam zero trust rbac abac opa open policy agent rego least privilege fido2 mfa multi tenant authz"
+  },
+  {
+    id: "event-sourcing",
+    title: "Event Sourcing & CQRS Audit Studio",
+    category: "Flagship Studios",
+    desc: "Immutable append-only event ledger, optimistic concurrency, time-travel state reconstruction, and CQRS projections.",
+    path: "/event-sourcing",
+    icon: GitCommit,
+    color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/50",
+    keywords: "event sourcing cqrs event store time travel aggregate replay snapshot martin fowler greg young kafka cdc"
+  },
+  {
+    id: "chaos-studio",
+    title: "Chaos Engineering & Resilience Simulator",
+    category: "Flagship Studios",
+    desc: "Simian Army fault injection, packet loss, 503 cascades, circuit breaker tripping, and adaptive concurrency throttling.",
+    path: "/chaos-studio",
+    icon: Flame,
+    color: "text-rose-500 bg-rose-50 dark:bg-rose-950/50",
+    keywords: "chaos monkey simian army toxiproxy fault injection packet loss latency jitter circuit breaker resilience"
   },
   {
     id: "system-design",

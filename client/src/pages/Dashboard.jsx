@@ -16,6 +16,7 @@ import {
   Flame,
   FolderGit2,
   Gauge,
+  GitCommit,
   Globe,
   Headphones,
   Layers,
@@ -157,6 +158,12 @@ export default function Dashboard() {
               <Link className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-slate-100 shadow-sm" to="/scale-hub">
                 Enterprise Scale Hub
               </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/event-sourcing">
+                Event Sourcing & CQRS
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/chaos-studio">
+                Chaos Resilience Studio
+              </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/queue-studio">
                 Queue & Worker Fleet
               </Link>
@@ -165,9 +172,6 @@ export default function Dashboard() {
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/system-design">
                 System Design Arena
-              </Link>
-              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/certificates">
-                Claim Certificates
               </Link>
             </div>
           </div>
@@ -341,7 +345,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
               {[
-                { id: "all", label: "All Studios (26)" },
+                { id: "all", label: "All Studios (28)" },
                 { id: "cloud", label: "Cloud & Scale" },
                 { id: "code", label: "Algorithms & Code" },
                 { id: "devops", label: "DevOps & SRE" }
@@ -374,6 +378,41 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link
+            to="/event-sourcing"
+            className="card group flex flex-col justify-between overflow-hidden border-indigo-100 p-5 transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg dark:border-indigo-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-950 dark:text-indigo-400">
+                <GitCommit size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">Event Sourcing & CQRS</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Append-only immutable event ledger, SHA-256 block chaining, time-travel state replay, and snapshot compaction.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              Inspect Event Stream <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/chaos-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-rose-100 p-5 transition hover:-translate-y-1 hover:border-rose-300 hover:shadow-lg dark:border-rose-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition group-hover:bg-rose-600 group-hover:text-white dark:bg-rose-950 dark:text-rose-400">
+                <Flame size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">Chaos & Resilience Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Simian Army fault injection, packet loss, 503 cascades, circuit breaker tripping, and adaptive concurrency throttling.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-rose-600 dark:text-rose-400">
+              Launch Chaos Mesh <ArrowRight size={14} />
+            </div>
+          </Link>
           <Link
             to="/queue-studio"
             className="card group flex flex-col justify-between overflow-hidden border-amber-100 p-5 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg dark:border-amber-900/30"
