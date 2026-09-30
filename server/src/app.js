@@ -22,6 +22,8 @@ import queueRoutes from "./routes/queueRoutes.js";
 import iamRoutes from "./routes/iamRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import chaosRoutes from "./routes/chaosRoutes.js";
+import tracingRoutes from "./routes/tracingRoutes.js";
+import canaryRoutes from "./routes/canaryRoutes.js";
 import { telemetryMiddleware, rateLimiter } from "./middleware/telemetryMiddleware.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -159,7 +161,9 @@ const apiIndex = (_req, res) => {
       "/api/queue",
       "/api/iam",
       "/api/events",
-      "/api/chaos"
+      "/api/chaos",
+      "/api/tracing",
+      "/api/canary"
     ]
   });
 };
@@ -188,6 +192,8 @@ app.use("/api", (req, res, next) => {
     req.path.startsWith("/iam") ||
     req.path.startsWith("/events") ||
     req.path.startsWith("/chaos") ||
+    req.path.startsWith("/tracing") ||
+    req.path.startsWith("/canary") ||
     req.path.startsWith("/health") ||
     req.path === "/metrics"
   ) {
@@ -218,6 +224,8 @@ app.use("/api/queue", queueRoutes);
 app.use("/api/iam", iamRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/chaos", chaosRoutes);
+app.use("/api/tracing", tracingRoutes);
+app.use("/api/canary", canaryRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
