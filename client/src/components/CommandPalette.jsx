@@ -18,6 +18,7 @@ import {
   Cloud,
   Code2,
   CornerDownLeft,
+  Crown,
   Database,
   DollarSign,
   FileText,
@@ -27,6 +28,7 @@ import {
   GitBranch,
   GitCommit,
   Globe,
+  HardDrive,
   Headphones,
   LayoutDashboard,
   Layers,
@@ -162,6 +164,26 @@ export const COMMAND_ITEMS = [
     icon: GitBranch,
     color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50",
     keywords: "canary deployment rollout launchdarkly unleash argo rollouts feature flags watchdog traffic split blast radius"
+  },
+  {
+    id: "raft-studio",
+    title: "Raft Consensus & Leader Election Studio",
+    category: "Flagship Studios",
+    desc: "Stanford Raft protocol, quorum log replication, split-brain partition tolerance, and leader crash recovery.",
+    path: "/raft-studio",
+    icon: Crown,
+    color: "text-amber-500 bg-amber-50 dark:bg-amber-950/50",
+    keywords: "raft consensus leader election paxos etcd cockroachdb zookeeper split brain quorum log replication"
+  },
+  {
+    id: "lsm-studio",
+    title: "Log-Structured Merge (LSM) Tree Studio",
+    category: "Flagship Studios",
+    desc: "MemTable RAM skiplist, WAL append durability, SSTable leveled compaction, and zero-I/O Bloom filters.",
+    path: "/lsm-studio",
+    icon: HardDrive,
+    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50",
+    keywords: "lsm tree log structured merge rocksdb cassandra leveldb clickhouse sstable memtable wal bloom filter compaction"
   },
   {
     id: "system-design",

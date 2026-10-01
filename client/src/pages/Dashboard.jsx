@@ -12,6 +12,7 @@ import {
   BriefcaseBusiness,
   Cloud,
   Code2,
+  Crown,
   DollarSign,
   Flame,
   FolderGit2,
@@ -19,6 +20,7 @@ import {
   GitBranch,
   GitCommit,
   Globe,
+  HardDrive,
   Headphones,
   Layers,
   MapPin,
@@ -177,6 +179,12 @@ export default function Dashboard() {
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/canary-studio">
                 Canary Deployments
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/raft-studio">
+                Raft Consensus
+              </Link>
+              <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/lsm-studio">
+                LSM Storage Engine
               </Link>
               <Link className="rounded-xl bg-white/20 border border-white/30 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/30 backdrop-blur" to="/system-design">
                 System Design Arena
@@ -353,7 +361,7 @@ export default function Dashboard() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
               {[
-                { id: "all", label: "All Studios (31)" },
+                { id: "all", label: "All Studios (33)" },
                 { id: "cloud", label: "Cloud & Scale" },
                 { id: "code", label: "Algorithms & Code" },
                 { id: "devops", label: "DevOps & SRE" }
@@ -939,6 +947,42 @@ export default function Dashboard() {
             </div>
             <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               Manage Rollouts <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/raft-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-amber-100 p-5 transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg dark:border-amber-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-600 group-hover:text-white dark:bg-amber-950 dark:text-amber-400">
+                <Crown size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">Raft Consensus Studio</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                5-node leader election, majority quorum replication (Q=3/5), and split-brain partition tolerance.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+              Inspect Quorum <ArrowRight size={14} />
+            </div>
+          </Link>
+
+          <Link
+            to="/lsm-studio"
+            className="card group flex flex-col justify-between overflow-hidden border-emerald-100 p-5 transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-lg dark:border-emerald-900/30"
+          >
+            <div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white dark:bg-emerald-950 dark:text-emerald-400">
+                <HardDrive size={20} />
+              </div>
+              <h3 className="mt-4 font-bold text-slate-900 dark:text-white">LSM Tree Storage Engine</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                RocksDB/Cassandra storage engine: MemTable skiplist, WAL durability, leveled compaction, and Bloom filters.
+              </p>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              Explore Engine <ArrowRight size={14} />
             </div>
           </Link>
         </div>

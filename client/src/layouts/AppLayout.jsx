@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Cloud,
   Code2,
+  Crown,
   Database,
   DollarSign,
   FileText,
@@ -24,6 +25,7 @@ import {
   GitBranch,
   GitCommit,
   Globe,
+  HardDrive,
   Headphones,
   LayoutDashboard,
   LogOut,
@@ -136,10 +138,10 @@ export default function AppLayout() {
     toast.success("All notifications marked as read");
   };
 
-  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/queue-studio", "/iam-studio", "/event-sourcing", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system", "/tracing-studio"].some((p) =>
+  const isLearnActive = ["/courses", "/roadmaps", "/system-design", "/scale-hub", "/queue-studio", "/iam-studio", "/event-sourcing", "/query-lab", "/flashcards", "/notes", "/microservices-lab", "/erd-studio", "/perf-audit", "/design-system", "/tracing-studio", "/lsm-studio"].some((p) =>
     location.pathname.startsWith(p)
   );
-  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester", "/chaos-studio", "/canary-studio"].some((p) =>
+  const isPracticeActive = ["/interview", "/codelab", "/focus", "/projects", "/mind-gym", "/terminal-lab", "/api-tester", "/docker-lab", "/cicd-pipeline", "/code-arena", "/cloud-architect", "/security-lab", "/regex-lab", "/load-tester", "/chaos-studio", "/canary-studio", "/raft-studio"].some((p) =>
     location.pathname.startsWith(p)
   );
   const isCareerActive = ["/career", "/jobs", "/certificates", "/portfolio", "/resume-builder", "/achievements", "/salary-radar"].some((p) =>
@@ -303,6 +305,13 @@ export default function AppLayout() {
                       <p className="text-[11px] text-slate-500">W3C spans & critical path DAG</p>
                     </div>
                   </NavLink>
+                  <NavLink to="/lsm-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <HardDrive size={17} className="mt-0.5 text-emerald-500" />
+                    <div>
+                      <p className="text-xs font-bold">LSM Tree Storage Engine</p>
+                      <p className="text-[11px] text-slate-500">MemTable, SSTable & Bloom filters</p>
+                    </div>
+                  </NavLink>
                 </div>
               )}
             </div>
@@ -432,6 +441,13 @@ export default function AppLayout() {
                     <div>
                       <p className="text-xs font-bold">Canary Deployments</p>
                       <p className="text-[11px] text-slate-500">Traffic split & watchdog rollback</p>
+                    </div>
+                  </NavLink>
+                  <NavLink to="/raft-studio" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                    <Crown size={17} className="mt-0.5 text-amber-500" />
+                    <div>
+                      <p className="text-xs font-bold">Raft Consensus Studio</p>
+                      <p className="text-[11px] text-slate-500">Leader election & split-brain</p>
                     </div>
                   </NavLink>
                   <NavLink to="/mind-gym" className="flex items-start gap-3 rounded-xl p-2.5 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
@@ -758,6 +774,9 @@ export default function AppLayout() {
               <NavLink to="/tracing-studio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Network size={17} className="text-indigo-500" /> Distributed Tracing Studio
               </NavLink>
+              <NavLink to="/lsm-studio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <HardDrive size={17} className="text-emerald-500" /> LSM Tree Storage Engine
+              </NavLink>
             </div>
 
             <div className="space-y-1">
@@ -788,6 +807,9 @@ export default function AppLayout() {
               </NavLink>
               <NavLink to="/canary-studio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <GitBranch size={17} className="text-emerald-500" /> Canary Deployments Studio
+              </NavLink>
+              <NavLink to="/raft-studio" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
+                <Crown size={17} className="text-amber-500" /> Raft Consensus Studio
               </NavLink>
               <NavLink to="/terminal-lab" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800">
                 <Terminal size={17} className="text-emerald-500" /> Git & UNIX Terminal
