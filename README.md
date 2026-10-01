@@ -13,7 +13,9 @@ A responsive MERN-stack SaaS-style application for learning, skill-gap analysis,
 
 - JWT authentication
 - User/Admin roles
-- Responsive dashboard with 31-module flagship training arena launcher
+- Responsive dashboard with 33-module flagship training arena launcher
+- Enterprise Raft Consensus & Distributed Leader Election Studio: Interactive 5-node Stanford Raft cluster simulator, randomized election timeouts (150-300ms) eliminating split votes, majority quorum write replication ($Q = \lfloor N/2 \rfloor + 1 = 3/5$), asymmetric network partition fence simulation (minority partition commit rejection), and automatic log reconciliation on partition healing (`/raft-studio`)
+- Log-Structured Merge (LSM) Tree & Storage Engine Studio: RocksDB, Cassandra, LevelDB and ClickHouse storage architecture simulator, Write-Ahead Log (WAL) sequential append durability, in-memory MemTable sorted skiplist buffer, Level 0 & Level 1 immutable SSTables, 16-bit Bloom filters for zero-I/O negative lookups, and multi-way Leveled Compaction with tombstone purging (`/lsm-studio`)
 - Enterprise Distributed Tracing & W3C Span Waterfall Studio: W3C TraceContext DAG modeler (`traceparent: 00-traceid-spanid-flags`), microsecond Gantt waterfall visualization, automated critical path latency bottleneck calculation, component span attributes inspector, and simulated RPC anomaly injection (`/tracing-studio`)
 - Dynamic Feature Flags & Progressive Canary Deployment Studio: Progressive traffic split state machine (10% -> 25% -> 50% -> 100%), automated SRE watchdog error-gate monitoring (Error Rate > 3.5% or P99 > 350ms -> sub-second auto-rollback), simulated high-concurrency traffic bursts, and multivariate user targeting feature flags (`/canary-studio`)
 - Enterprise Event Sourcing & CQRS Audit Ledger Studio: Append-only immutable event store conforming to Martin Fowler and Greg Young patterns, cryptographic SHA-256 block linking, optimistic concurrency version fencing, zero-loss time-travel state reconstruction scrubber, snapshot compaction, and asynchronous CQRS read projections (`/event-sourcing`)
