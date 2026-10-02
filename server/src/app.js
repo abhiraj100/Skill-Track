@@ -26,6 +26,8 @@ import tracingRoutes from "./routes/tracingRoutes.js";
 import canaryRoutes from "./routes/canaryRoutes.js";
 import raftRoutes from "./routes/raftRoutes.js";
 import lsmRoutes from "./routes/lsmRoutes.js";
+import ratelimitRoutes from "./routes/ratelimitRoutes.js";
+import gossipRoutes from "./routes/gossipRoutes.js";
 import { telemetryMiddleware, rateLimiter } from "./middleware/telemetryMiddleware.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -167,7 +169,9 @@ const apiIndex = (_req, res) => {
       "/api/tracing",
       "/api/canary",
       "/api/raft",
-      "/api/lsm"
+      "/api/lsm",
+      "/api/ratelimit",
+      "/api/gossip"
     ]
   });
 };
@@ -200,6 +204,8 @@ app.use("/api", (req, res, next) => {
     req.path.startsWith("/canary") ||
     req.path.startsWith("/raft") ||
     req.path.startsWith("/lsm") ||
+    req.path.startsWith("/ratelimit") ||
+    req.path.startsWith("/gossip") ||
     req.path.startsWith("/health") ||
     req.path === "/metrics"
   ) {
@@ -234,6 +240,8 @@ app.use("/api/tracing", tracingRoutes);
 app.use("/api/canary", canaryRoutes);
 app.use("/api/raft", raftRoutes);
 app.use("/api/lsm", lsmRoutes);
+app.use("/api/ratelimit", ratelimitRoutes);
+app.use("/api/gossip", gossipRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
