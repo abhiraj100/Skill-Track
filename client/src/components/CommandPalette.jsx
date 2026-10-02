@@ -186,6 +186,26 @@ export const COMMAND_ITEMS = [
     keywords: "lsm tree log structured merge rocksdb cassandra leveldb clickhouse sstable memtable wal bloom filter compaction"
   },
   {
+    id: "ratelimit-studio",
+    title: "Distributed Rate Limiting & Traffic Shaper Studio",
+    category: "Flagship Studios",
+    desc: "Sliding window counter, distributed token bucket with Redis Lua atomic CAS, leaky bucket, and 429 shedding.",
+    path: "/ratelimit-studio",
+    icon: Gauge,
+    color: "text-amber-500 bg-amber-50 dark:bg-amber-950/50",
+    keywords: "rate limit sliding window token bucket leaky bucket 429 too many requests redis lua traffic shaper throttling"
+  },
+  {
+    id: "gossip-studio",
+    title: "SWIM Gossip Protocol & Cluster Membership Studio",
+    category: "Flagship Studios",
+    desc: "Decentralized peer-to-peer discovery, infection-style rumor mongering (O(log N)), and indirect Ping-Req failure detection.",
+    path: "/gossip-studio",
+    icon: Radio,
+    color: "text-teal-500 bg-teal-50 dark:bg-teal-950/50",
+    keywords: "gossip swim protocol cluster membership failure detection ping req epidemic rumor hashicorp consul cassandra"
+  },
+  {
     id: "system-design",
     title: "System Design Arena",
     category: "Flagship Studios",

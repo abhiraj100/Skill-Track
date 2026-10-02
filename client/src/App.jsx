@@ -49,6 +49,8 @@ import TracingStudio from "./pages/TracingStudio";
 import CanaryStudio from "./pages/CanaryStudio";
 import RaftStudio from "./pages/RaftStudio";
 import LsmStudio from "./pages/LsmStudio";
+import RateLimitStudio from "./pages/RateLimitStudio";
+import GossipStudio from "./pages/GossipStudio";
 import NotFound from "./pages/NotFound";
 
 const Admin = lazy(() => import("./pages/Admin"));
@@ -159,6 +161,8 @@ function Router() {
         <Route path="/canary-studio" element={<CanaryStudio />} />
         <Route path="/raft-studio" element={<RaftStudio />} />
         <Route path="/lsm-studio" element={<LsmStudio />} />
+        <Route path="/ratelimit-studio" element={<RateLimitStudio />} />
+        <Route path="/gossip-studio" element={<GossipStudio />} />
         <Route path="/mind-gym" element={<MindGym />} />
         <Route path="/notes" element={<StudyNotes />} />
         <Route path="/achievements" element={<Achievements />} />
